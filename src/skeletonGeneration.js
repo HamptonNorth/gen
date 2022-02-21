@@ -15,6 +15,16 @@ const generateSkeleton = async (targetDir, targetRoot, port) => {
 
   // Create all directories ----------------------------------------------------------
 
+  // create test dir
+  let folderNameTests = targetRoot + '/tests'
+  try {
+    if (!fs.existsSync(folderNameTests)) {
+      fs.mkdirSync(folderNameTests)
+    }
+  } catch (err) {
+    console.error(err)
+  }
+
   // create routes dir
   let folderNameRoutes = targetRoot + '/routes'
   try {
@@ -62,26 +72,35 @@ const generateSkeleton = async (targetDir, targetRoot, port) => {
     console.error(err)
   }
 
-  // Step 1 - generate server.js skeleton code ----------------------------------------------------------
-
-  let serverJSCode = `const express = require('express')
+  // Step 1 - generate app.js skeleton code ----------------------------------------------------------
+  let appJSCode = `const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 const routes = require('./routes')
-
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-
-app.get('/', (req, res) => res.send('Generated REST API app is working'))
-
+app.get('/', (req, res) => res.status(200).send('Generated REST API app is working'))
 app.use('/api', routes)
 
-app.listen(${port}, () => console.log('Generated REST API server app listening on port ${port}'))
+module.exports =  app
+`
 
-module.exports = {
-  app,
-}`
+  fs.writeFileSync(targetRoot + '/app.js', appJSCode, (err) => {
+    if (err) {
+      console.log('error writing ' + targetRoot + '/app.js', err)
+      return
+    }
+    console.log('Generation step - ' + targetRoot + '/app.js' + ' written successfully')
+  })
 
+  // Step 2 - generate server.js skeleton code ----------------------------------------------------------
+
+  let serverJSCode = `const app = require('./app')
+
+app.listen(${port}, () => {
+  console.log('Generated REST API server app listening on port ${port}')
+})
+`
   fs.writeFileSync(targetRoot + '/server.js', serverJSCode, (err) => {
     if (err) {
       console.log('error writing ' + targetRoot + '/server.js', err)
@@ -90,7 +109,7 @@ module.exports = {
     console.log('Generation step - ' + targetRoot + '/server.js' + ' written successfully')
   })
 
-  // Step 2 - create skeleton code for routes/index.js ----------------------------------------------------------
+  // Step 3 - create skeleton code for routes/index.js ----------------------------------------------------------
 
   let routesIndexJSCode = `const express = require('express')
 //@insert1
@@ -106,7 +125,7 @@ module.exports = router`
     console.log('Generation step - ' + folderNameRoutes + '/index.js' + ' written successfully')
   })
 
-  // Step 3 - create skeleton code for contollers/index.js ----------------------------------------------------------
+  // Step 4 - create skeleton code for contollers/index.js ----------------------------------------------------------
 
   let controllersIndexJSCode = `
 //@insert1
@@ -123,7 +142,7 @@ module.exports = {
     console.log('Generation step - ' + folderNameControllers + '/index.js' + ' written successfully')
   })
 
-  // Step 4 - create skeleton code for services/index.js ----------------------------------------------------------
+  // Step 5 - create skeleton code for services/index.js ----------------------------------------------------------
 
   let servicesIndexJSCode = `
 //@insert1
@@ -141,7 +160,7 @@ module.exports = {
     console.log('Generation step - ' + folderNameSevices + '/index.js' + ' written successfully')
   })
 
-  // Step 5 - create skeleton code for db/index.js ----------------------------------------------------------
+  // Step 6 - create skeleton code for db/index.js ----------------------------------------------------------
 
   let dbIndexJSCode = `
 //@insert1
@@ -158,7 +177,7 @@ module.exports = {
     console.log('Generation step - ' + folderNameDb + '/index.js' + ' written successfully')
   })
 
-  //  Step 6 - db config /configs/dbconfigs.js file ----------------------------------------------------------
+  //  Step 7 - db config /configs/dbconfigs.js file ----------------------------------------------------------
 
   let dbConfigJSCode = ''
   if (process.env.DATABASEPROVIDER === 'MYSQL') {
@@ -182,7 +201,7 @@ module.exports = {
     console.log('Generation step - ' + targetRoot + '/configs/dbconfigs.js  written successfully')
   })
 
-  // Step 7 - create db connection /db/db.js ----------------------------------------------------------
+  // Step 8 - create db connection /db/db.js ----------------------------------------------------------
 
   let dbDbJSCode = `
 const mysql = require('mysql2')
@@ -198,11 +217,16 @@ const connection = mysql.createConnection({
 
 // open the MySQL connection
 connection.connect((error) => {
-  if (error) throw error
+  if (error) {
+    console.log('******** Error connecting to MySQL ', error.sqlMessage, ' ********')
+    console.log('    **** Reminder - MySQL setting in file /configs/db.js')
+  } else {
   console.log('Successfully connected to the database:', dbConfig.DB)
+  }
 })
 
-module.exports = connection`
+module.exports = connection
+`
 
   //   write db.js
   fs.writeFileSync(folderNameDb + '/db.js', dbDbJSCode, (err) => {

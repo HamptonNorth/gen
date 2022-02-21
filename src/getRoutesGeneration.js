@@ -52,25 +52,25 @@ const generateGet = async (routeName) => {
     process.exit(1)
   }
 
-  console.info(
-    '\n----------------------------------------------\ntargetRootDir:',
-    targetRootDir,
-    '\n  route:',
-    route,
-    '\n  routeLowerCase:',
-    routeLowerCase,
-    '\n  routeWithCapital:',
-    routeWithCapital,
-    '\n  expressRoute:',
-    expressRoute,
-    '\n  expressRouteLowerCase:',
-    expressRouteLowerCase,
-    '\n  parameterType:',
-    parameterType,
-    '\n  passedObjectKeys:',
-    passedObjectKeys,
-    '\n----------------------------------------------\n'
-  )
+  // console.info(
+  //   '\n----------------------------------------------\ntargetRootDir:',
+  //   targetRootDir,
+  //   '\n  route:',
+  //   route,
+  //   '\n  routeLowerCase:',
+  //   routeLowerCase,
+  //   '\n  routeWithCapital:',
+  //   routeWithCapital,
+  //   '\n  expressRoute:',
+  //   expressRoute,
+  //   '\n  expressRouteLowerCase:',
+  //   expressRouteLowerCase,
+  //   '\n  parameterType:',
+  //   parameterType,
+  //   '\n  passedObjectKeys:',
+  //   passedObjectKeys,
+  //   '\n----------------------------------------------\n'
+  // )
   console.log('Route generation - method: ', method, '  route: ', route, message, ' object keys : ', passedObjectKeys)
 
   //  Step 1 - insert express route into routes/index.js
@@ -243,18 +243,23 @@ const generateGet = async (routeName) => {
   // **********************************************************
   //  Step 7 - db/route-get.db.js file
   // ***
+  let testResponse =
+    '[{"id": 1,"email": "rcollins@redmug.co.uk","role": "superuser"}, {"id": 2,"email": "support@redmug.dev","role": "user"}]'
+  if (process.env.ROUTETESTRESPONSE !== '') {
+    testResponse = process.env.ROUTETESTRESPONSE
+  }
 
   let dbJSCode = `const sql = require('./db.js')
   const ${route}Db = (${passedObjectKeys}) => {
-    // sample working sql example
-    // let q = 'SELECT users.id, users.email, users.role FROM users '
+    // MySQL example with passedObjectKey of id
+    // let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'
     // return sql
     //  .promise()
-    //  .query(q)
+    //  .query(q [id])
     //  .then(([rows]) => {
     //    return rows
     //  }) 
-    let test = '[{"id": 1,"email": "rcollins@redmug.co.uk","role": "superuser"}, {"id": 2,"email": "support@redmug.dev","role": "user"}]'
+    let test = '${testResponse}'
     return JSON.parse(test) 
   }  
   module.exports = {
@@ -268,36 +273,6 @@ const generateGet = async (routeName) => {
       return
     }
     // console.log('Generation step - ' + targetRootDir + '/db/index.js and ' + dbFileName + ' written successfully')
-  })
-  // **********************************************************
-  //  Step 8 - db connection /db/db.js file
-  // ***
-  let dbConnectJSCode = `const mysql = require('mysql2')
-  const dbConfig = require('../configs/dbconfig.js')
-  
-  // Create a connection to the database
-  const connection = mysql.createConnection({
-    host: dbConfig.HOST,
-    user: dbConfig.USER,
-    password: dbConfig.PASSWORD,
-    database: dbConfig.DB,
-  })
-  
-  // open the MySQL connection
-  connection.connect((error) => {
-    if (error) throw error
-    console.log('Successfully connected to the database:', dbConfig.DB)
-  })
-  
-  module.exports = connection`
-  let dbConnectFileName = targetRootDir + `/db/db.js`
-
-  fs.writeFile(dbConnectFileName, dbConnectJSCode, (err) => {
-    if (err) {
-      console.log('error writing ' + dbConnectFileName, err)
-      return
-    }
-    // console.log('Generation step - ' + targetRootDir + '/db/db.js  written successfully')
     console.log('Route generation completed successfully')
   })
 }
