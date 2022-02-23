@@ -62,6 +62,7 @@ const generateSkeleton = async (targetDir, targetRoot, port) => {
   } catch (err) {
     console.error(err)
   }
+
   // create configs directory
   let folderNameConfigs = targetRoot + '/configs'
   try {
@@ -186,6 +187,10 @@ module.exports = {
         USER: '${process.env.DATABASEUSER}',
         PASSWORD: 'set_password_here',
         DB: '${process.env.DATABASENAME}',
+        WAITFORCONNECTIONS: '${process.env.DATABASEWAITFORCONNECTIONS}',
+        CONNECTIONLIMIT: '${process.env.DATABASECONNECTIONLIMIT}',
+        QUEUELIMIT:'${process.env.DATABASEQUEUELIMIT}',
+        
       }
       `
   } else {
@@ -201,7 +206,7 @@ module.exports = {
     console.log('Generation step - ' + targetRoot + '/configs/dbconfigs.js  written successfully')
   })
 
-  // Step 8 - create db connection /db/db.js ----------------------------------------------------------
+  // Step 8 - create individual db connection /db/db.js ----------------------------------------------------------
 
   let dbDbJSCode = `
 const mysql = require('mysql2')
@@ -218,10 +223,10 @@ const connection = mysql.createConnection({
 // open the MySQL connection
 connection.connect((error) => {
   if (error) {
-    console.log('******** Error connecting to MySQL ', error.sqlMessage, ' ********')
+    console.log('******** Error connecting to MySQL single connection ', error.sqlMessage, ' ********')
     console.log('    **** Reminder - MySQL setting in file /configs/db.js')
   } else {
-  console.log('Successfully connected to the database:', dbConfig.DB)
+  console.log('Successfully connected to the database (new connection):', dbConfig.DB)
   }
 })
 
@@ -237,13 +242,53 @@ module.exports = connection
     console.log('Generation step - ' + folderNameDb + '/Db.js' + ' written successfully')
   })
 
+  // Step 9 - create pooled db connection /db/db-pool.js ----------------------------------------------------------
+
+  let dbPoolDbJSCode = `
+ const mysql = require('mysql2')
+ const dbConfig = require('../configs/dbconfig.js')
+ 
+ // Create a connection to the database
+ const connection = mysql.createConnection({
+   host: dbConfig.HOST,
+   user: dbConfig.USER,
+   password: dbConfig.PASSWORD,
+   database: dbConfig.DB,
+   waitForConnections: dbConfig.WAITFORCONNECTIONS,
+  connectionLimit: dbConfig.CONNECTIONLIMIT,
+  queueLimit: dbConfig.QUEUELIMIT,
+ })
+ 
+ // open the MySQL connection
+ pool.getConnection((error) => {
+   if (error) {
+     console.log('******** Error connecting to MySQL ', error.sqlMessage, ' ********')
+     console.log('    **** Reminder - MySQL setting in file /configs/db.js')
+   } else {
+    pool.releaseConnection(conn)
+   console.log('Successfully connected to the database (connection pool):', dbConfig.DB)
+   }
+ })
+ 
+ module.exports = pool
+ `
+  console.log('folderNameDb', folderNameDb)
+  //   write db.js
+  fs.writeFileSync(folderNameDb + '/db-pool.js', dbPoolDbJSCode, (err) => {
+    if (err) {
+      console.log('error writing ' + folderNameDb + '/Db-pool.js', err)
+      return
+    }
+    console.log('Generation step - ' + folderNameDb + '/Db-pool.js' + ' written successfully')
+  })
+
   setTimeout(function () {
     console.log(
       'Generating skeleton files for app: /' +
         targetDir +
         ' completed successfully ------------------------------------'
     )
-  }, 4000)
+  }, 2000)
 }
 
 module.exports = {

@@ -250,10 +250,13 @@ const generateGet = async (routeName) => {
   }
 
   let dbJSCode = `const sql = require('./db.js')
+  // const sql = require('./db.js')
   const ${route}Db = (${passedObjectKeys}) => {
     // MySQL example with passedObjectKey of id
+    // use sql = require db.js and return sql for new connection (use with transaction)
     // let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'
     // return sql
+    // return pool
     //  .promise()
     //  .query(q [id])
     //  .then(([rows]) => {
