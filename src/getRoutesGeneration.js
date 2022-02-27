@@ -249,7 +249,7 @@ const generateGet = async (routeName) => {
     testResponse = process.env.ROUTETESTRESPONSE
   }
 
-  let dbJSCode = `const sql = require('./db.js')
+  let dbPoolJSCode = `const pool = require('./db-pool.js')
   // const sql = require('./db.js')
   const ${route}Db = (${passedObjectKeys}) => {
     // MySQL example with passedObjectKey of id
@@ -270,7 +270,7 @@ const generateGet = async (routeName) => {
   }`
   let dbFileName = targetRootDir + `/db/${route}-get.db.js`
 
-  fs.writeFile(dbFileName, dbJSCode, (err) => {
+  fs.writeFile(dbFileName, dbPoolJSCode, (err) => {
     if (err) {
       console.log('error writing ' + dbFileName, err)
       return

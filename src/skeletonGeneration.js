@@ -249,7 +249,7 @@ module.exports = connection
  const dbConfig = require('../configs/dbconfig.js')
  
  // Create a connection to the database
- const connection = mysql.createConnection({
+ const pool = mysql.createPool({
    host: dbConfig.HOST,
    user: dbConfig.USER,
    password: dbConfig.PASSWORD,
@@ -259,13 +259,13 @@ module.exports = connection
   queueLimit: dbConfig.QUEUELIMIT,
  })
  
- // open the MySQL connection
- pool.getConnection((error) => {
+ // open the MySQL pool 
+ pool.getConnection((error, connection) => {
    if (error) {
      console.log('******** Error connecting to MySQL ', error.sqlMessage, ' ********')
      console.log('    **** Reminder - MySQL setting in file /configs/db.js')
    } else {
-    pool.releaseConnection(conn)
+    pool.releaseConnection(connection)
    console.log('Successfully connected to the database (connection pool):', dbConfig.DB)
    }
  })
