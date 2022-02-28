@@ -146,7 +146,7 @@ const generateGet = async (routeName) => {
       ` +
     controllerConst +
     `    
-    console.log("req.params:", req.params, "req.query:", req.query)
+    // console.log("req.params:", req.params, "req.query:", req.query)
       const r = await ${route}Get(${passedObjectKeys})      
       res.send(r)  
       next()
@@ -244,7 +244,7 @@ const generateGet = async (routeName) => {
   //  Step 7 - db/route-get.db.js file
   // ***
   let testResponse =
-    '[{"id": 1,"email": "rcollins@redmug.co.uk","role": "superuser"}, {"id": 2,"email": "support@redmug.dev","role": "user"}]'
+    '[{"id": 1,"email": "someone@redmug.dev","role": "superuser"}, {"id": 2,"email": "support@redmug.dev","role": "user"}]'
   if (process.env.ROUTETESTRESPONSE !== '') {
     testResponse = process.env.ROUTETESTRESPONSE
   }
@@ -276,7 +276,37 @@ const generateGet = async (routeName) => {
       return
     }
     // console.log('Generation step - ' + targetRootDir + '/db/index.js and ' + dbFileName + ' written successfully')
-    console.log('Route generation completed successfully')
+  })
+  // **********************************************************
+  //  Step 8 - tests/api-tests.test.js file
+  // ***
+  let testsJSCode = `
+  
+  describe('Test the ${expressRouteLowerCase} route', () => {
+    test('Test /api/${routeLowerCase} emails include ??', async () => {
+      const response = await request(app).get('/api/${expressRouteLowerCase}')
+      // change these assertions to match API return
+      expect(response.body[0].email).toEqual('someone@redmug.dev')
+      expect(response.body[1].email).toEqual('support@redmug.dev')
+      expect(response.statusCode).toBe(200)
+    })
+  })
+  
+  `
+
+  fs.readFile(targetRootDir + `/tests/api-tests.test.js`, 'utf8', function (err, data) {
+    if (err) {
+      return console.log(err)
+    }
+
+    let replace1 = `${testsJSCode} 
+//@insert1`
+
+    let result = data.replace(/\/\/@insert1/g, replace1)
+
+    fs.writeFile(targetRootDir + `/tests/api-tests.test.js`, result, 'utf8', function (err) {
+      if (err) return console.log(err)
+    })
   })
 }
 

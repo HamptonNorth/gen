@@ -15,7 +15,7 @@ const generateSkeleton = async (targetDir, targetRoot, port) => {
 
   // Create all directories ----------------------------------------------------------
 
-  // create test dir
+  // create tests dir
   let folderNameTests = targetRoot + '/tests'
   try {
     if (!fs.existsSync(folderNameTests)) {
@@ -280,6 +280,29 @@ module.exports = connection
       return
     }
     console.log('Generation step - ' + folderNameDb + '/Db-pool.js' + ' written successfully')
+  })
+
+  // Step 10 - create skeleton code for api-tests.test.js ----------------------------------------------------------
+
+  let testSkeletonJSCode = `
+  const request = require('supertest')
+  const app = require('../app')
+  const pool = require('../db/db-pool')
+
+    beforeAll(() => {})
+
+    //@insert1
+
+  afterAll(() => {
+  pool.end()
+  })
+`
+  fs.writeFileSync(folderNameTests + '/api-tests.test.js', testSkeletonJSCode, (err) => {
+    if (err) {
+      console.log('error writing ' + folderNameTests + '/api-tests.test.js', err)
+      return
+    }
+    console.log('Generation step - ' + folderNameTests + '/api-tests.test.js' + ' written successfully')
   })
 
   setTimeout(function () {

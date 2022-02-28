@@ -1,8 +1,8 @@
 # Generator
 
-Express does not lay down suggested project structures or conventions when building an API. There are lots of opinions. This generator follows the suggestion laid out by Corey Cleary. [https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way](https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way)
+Express does not lay down suggested project structures or conventions when building an API. There are lots of opinions. This generator follows the suggestion laid out by Corey Cleary.  [https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way](https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way)
 
-Getting routes, controllers, services and db working across the layers can be prone to error. The _generator_ project generates the necessary skeleton code for routes, controllers, services, db access and tests.
+Getting routes, controllers, services and db working across the layers can be prone to error. The *generator* project  generates the necessary skeleton code for routes, controllers, services, db access and tests.
 
 The code is linear. This is deliberate putting ability to quickly understand the code above elegance.
 
@@ -44,7 +44,7 @@ The resulting `package.json` file should resemble:
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --detectOpenHandles -i tests/api-tests.test"
   },
   "author": "RNC",
   "license": "ISC",
@@ -59,7 +59,8 @@ The resulting `package.json` file should resemble:
     "supertest": "^6.2.2"
   },
   "jest": {
-    "verbose": true
+    "verbose": true,
+    "maxWorkers": 1
   }
 }
 ```
@@ -86,6 +87,9 @@ DATABASEPROVIDER=MYSQL
 DATABASEHOST=localhost
 DATABASEUSER=root
 DATABASENAME=redmugapi
+DATABASEWAITFORCONNECTIONS= true,
+DATABASECONNECTIONLIMIT=10,
+DATABASEQUEUELIMIT=0
 
 # generate routes YES or NO/no/anything
 # route details are passed as options
@@ -97,9 +101,9 @@ OVERWRITEROUTE=YES
 # route name may be for example
 #  users              (no parameters)
 #  user/:id           (data passed as part of url e.g.   /user/1)
-#  search?name=       (data passed url query string parameter e.g search?name=wilson)
+#  search?name=       (data passed url query string parameter e.g search?name=wilson) 
 #
-# route names are converted to lower case - N.B. omit leading 'slash'
+# route names are converted to lower case - N.B. omit leading 'slash' 
 ROUTENAME=users
 
 # route method may be GET, POST, PUT or DELETE
@@ -126,25 +130,22 @@ The workflow might be:
 
 1. set `GENERATESKELETON=YES` and generate a working skeleton and first route by running `npm run app.js` from the root of the gen app
 2. Set the database password in `/configs/dbconfig.js`
-3. Test the server and first route (e.g. users in above .env example) using the URL `loacalhost:3005/api/users` The browser should display whatever was set in the `ROUTETESTRESPONSE` or if left empty:
+3. Test the server and first route (e.g. users in above .env example) using the URL `loacalhost:3005/api/users` The browser should display whatever was set in the `ROUTETESTRESPONSE` or if left empty: 
 
 ```json
-[
-  {
-    "id": 1,
-    "email": "rcollins@redmug.co.uk",
-    "role": "superuser"
-  },
-  {
-    "id": 2,
-    "email": "support@redmug.dev",
-    "role": "user"
-  }
-]
+[{
+	"id": 1,
+	"email": "someone@redmug.dev",
+	"role": "superuser"
+}, {
+	"id": 2,
+	"email": "support@redmug.dev",
+	"role": "user"
+}]
 ```
 
 1. To add further routes, change `GENERATESKELETON=YES` to `GENERATESKELETON=NO` in `.env`
-2. Keep adding routes setting the following in `.env`
+2. Keep adding routes setting the following in `.env` 
 
 ```bash
 ROUTENAME=
@@ -154,3 +155,99 @@ ROUTETESTRESPONSE=
 ```
 
 1. Repeat adding routes as needed
+
+## Tests
+
+The skeleton generation code creates a `/tests` directory and a file, `api.tests.test.js` is populated with and outline that individual test may then be added to:
+
+```jsx
+const request = require('supertest')
+const app = require('../app')
+const pool = require('../db/db-pool')
+
+beforeEach(() => {})
+
+//@insert1
+
+afterEach(() => {
+  pool.end()
+})
+```
+
+For each route generated, a test is added. Here is the completed ``api.tests.test.js`
+
+ for the routes `/api/users, /api/user/:id and /api/search?name=williams` 
+
+```jsx
+const request = require('supertest')
+const app = require('../app')
+const pool = require('../db/db-pool')
+
+beforeAll(() => {})
+
+describe('Test the search route', () => {
+  test('Test /api/search emails include ??', async () => {
+    const response = await request(app).get('/api/search')
+    // change these assertions to match API return
+    expect(response.body[0].email).toEqual('someone@redmug.dev')
+    expect(response.body[1].email).toEqual('support@redmug.dev')
+    expect(response.statusCode).toBe(200)
+  })
+})
+
+describe('Test the users route', () => {
+  test('Test /api/users emails include ??', async () => {
+    const response = await request(app).get('/api/users')
+    // change these assertions to match API return
+    expect(response.body[0].email).toEqual('someone@redmug.dev')
+    expect(response.body[1].email).toEqual('support@redmug.dev')
+    expect(response.statusCode).toBe(200)
+  })
+})
+
+describe('Test the user/:id route', () => {
+  test('Test /api/user emails include ??', async () => {
+    const response = await request(app).get('/api/user/:id')
+    // change these assertions to match API return
+    expect(response.body[0].email).toEqual('someone@redmug.dev')
+    expect(response.body[1].email).toEqual('support@redmug.dev')
+    expect(response.statusCode).toBe(200)
+  })
+})
+
+//@insert1
+
+afterAll(() => {
+  pool.end()
+})
+```
+
+When `npm test` run, output is:
+
+```bash
+$ npm test
+
+> gen-test@0.1.0 test
+> jest --detectOpenHandles
+
+  console.log
+    Successfully connected to the database (connection pool): redmugapi
+
+      at db/db-pool.js:23:12
+
+ PASS  tests/api-tests.test.js
+  Test the search route
+    √ Test /api/search emails include ?? (92 ms)
+  Test the users route
+    √ Test /api/users emails include ?? (12 ms)
+  Test the user/:id route
+    √ Test /api/user emails include ?? (16 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 4 total
+Snapshots:   0 total
+Time:        0.94 s, estimated 1 s
+Ran all test suites. 
+```
+
+As the SQL is added to the `/db` directory route file, the assertion test need changing to match.
