@@ -1,77 +1,44 @@
 const fs = require('node:fs')
-const generateGet = async (routeName) => {
+const generatePost = async (routeName) => {
   let targetRootDir = process.env.APPPATH + process.env.APPDIR
   let route = routeName.toLowerCase()
   let routeLowerCase = route.toLowerCase()
   let routeWithCapital = route[0].toUpperCase() + route.substring(1)
   let expressRoute = routeName
-  // the express route in /routes.index.js should include /: URL query parameter e.g /user/:id
+  // the express route in /routes.index.js should include
   let expressRouteLowerCase = expressRoute.toLowerCase()
-  // parameter pass type - none | url | querystring
-  let parameterType = 'none'
-  let method = 'GET'
+  // parameter pass type - body
+  let parameterType = 'body'
+  let method = 'POST'
   let message = ''
 
-  let passedObjectKeys = ''
+  let passedObjectKeys = parseObjectKeys(process.env.ROUTEREQUESTBODY, method)
 
-  // check for URL route parameter - anything after '/:'
-  if (routeName.indexOf('/:') !== -1) {
-    route = routeName.substring(0, routeName.indexOf('/:'))
-    routeLowerCase = route.toLowerCase()
-    routeWithCapital = route[0].toUpperCase() + route.substring(1)
-    expressRoute = routeName
-    expressRouteLowerCase = expressRoute.toLowerCase()
-    parameterType = 'url'
-    // the express route in /routes.index.js should include /: URL query parameter e.g /user/:id
-    message = ' route parameter: ' + routeName.substring(routeName.indexOf('/:'))
-    // build object keys to pass from controller layer to service and database layers
-    // e.g route of /item/:branch/:bin gives object keys: branch, bin
-    passedObjectKeys = parseObjectKeys(routeName.substring(routeName.indexOf('/:')), parameterType)
-  }
-  // check for URL query string paraneters
-  if (routeName.indexOf('?') !== -1) {
-    route = routeName.substring(0, routeName.indexOf('?'))
-    routeLowerCase = route.toLowerCase()
-    routeWithCapital = route[0].toUpperCase() + route.substring(1)
-    expressRoute = route
-    expressRouteLowerCase = expressRoute.toLowerCase()
-    parameterType = 'queryString'
-    message = ' URL query parameter: ' + routeName.substring(routeName.indexOf('?'))
-    // build object keys to pass from controller layer to service and database layers
-    // e.g route of /search?name=Jones&postcode=CH1 gives object keys: name, postcode
-    passedObjectKeys = parseObjectKeys(routeName.substring(routeName.indexOf('?')), parameterType)
-  }
-  if (routeName.indexOf('/:') === -1 && routeName.indexOf('?') === -1) {
-    message = ' with no route parameter or URL query parameter'
-  }
-
-  if (routeName.indexOf('/:') !== -1 && routeName.indexOf('?') !== -1) {
-    console.log(
-      'ERROR - route has both route parameter and URL query parameter - not supported! Check the .env file setting'
-    )
+  if (Object.keys(passedObjectKeys).length === 0) {
+    console.log('ERROR - POST has empty body! Check the .env file setting')
     process.exit(1)
   }
 
-  // console.info(
-  //   '\n----------------------------------------------\ntargetRootDir:',
-  //   targetRootDir,
-  //   '\n  route:',
-  //   route,
-  //   '\n  routeLowerCase:',
-  //   routeLowerCase,
-  //   '\n  routeWithCapital:',
-  //   routeWithCapital,
-  //   '\n  expressRoute:',
-  //   expressRoute,
-  //   '\n  expressRouteLowerCase:',
-  //   expressRouteLowerCase,
-  //   '\n  parameterType:',
-  //   parameterType,
-  //   '\n  passedObjectKeys:',
-  //   passedObjectKeys,
-  //   '\n----------------------------------------------\n'
-  // )
-  console.log('Route generation - method: ', method, '  route: ', route, message, ' object keys : ', passedObjectKeys)
+  console.info(
+    '\n----------------------------------------------\ntargetRootDir:',
+    targetRootDir,
+    '\n  route:',
+    route,
+    '\n  routeLowerCase:',
+    routeLowerCase,
+    '\n  routeWithCapital:',
+    routeWithCapital,
+    '\n  expressRoute:',
+    expressRoute,
+    '\n  expressRouteLowerCase:',
+    expressRouteLowerCase,
+    '\n  parameterType:',
+    parameterType,
+    '\n  passedObjectKeys:',
+    passedObjectKeys,
+    '\n----------------------------------------------\n'
+  )
+  console.log('Route generation - method: ', method, '  route: ', route, ' object keys : ', passedObjectKeys)
 
   //  Step 1 - insert express route into routes/index.js
 
@@ -91,7 +58,7 @@ const generateGet = async (routeName) => {
 
     let replace1 = `const {  ${routeLowerCase}  } = require('../controllers') 
 //@insert1`
-    let replace2 = `router.get('/${expressRouteLowerCase}', ${route}.get${routeWithCapital})
+    let replace2 = `router.post('/${expressRouteLowerCase}', ${route}.post${routeWithCapital})
 //@insert2`
 
     let result = data.replace(/\/\/@insert1/g, replace1)
@@ -111,7 +78,7 @@ const generateGet = async (routeName) => {
       return console.log(err)
     }
 
-    let replace1 = `const ${route} = require('./${route}-get.controller') 
+    let replace1 = `const ${route} = require('./${route}-post.controller') 
 //@insert1`
     let replace2 = `${route}, 
 //@insert2`
@@ -124,30 +91,23 @@ const generateGet = async (routeName) => {
     })
   })
   // **********************************************************
-  //  Step 3 - controllers/route-get.controller.js file
+  //  Step 3 - controllers/route-post.controller.js file
   // ***
-  let controllerConst = ''
-  if (parameterType === 'url') {
-    controllerConst = ` const { ${passedObjectKeys} } = req.params `
-  } else if (parameterType === 'queryString') {
-    controllerConst = ` const { ${passedObjectKeys} } = req.query `
-  } else {
-    controllerConst = ` const { ${passedObjectKeys} } = req.body `
-  }
+  let controllerConst = ` const { ${passedObjectKeys} } = req.body `
 
   let controllerJSCode =
     `const { ${route}Service } = require('../services')
-  const { ${route}Get } = ${route}Service  
+  const { ${route}Post } = ${route}Service  
   //   calls other imported services here  
-  const get${routeWithCapital} = async (req, res, next) => {
+  const post${routeWithCapital} = async (req, res, next) => {
     
     try {
-      // req.body ignored for GET
+      // req.body used for POST
       ` +
     controllerConst +
     `    
-    // console.log("req.body:", req.body, "req.params:", req.params, "req.query:", req.query)
-      const r = await ${route}Get(${passedObjectKeys})      
+     console.log("req.body:", req.body, "req.params:", req.params, "req.query:", req.query)
+      const r = await ${route}Post(${passedObjectKeys})      
       res.send(r)  
       next()
     } catch (e) {
@@ -156,9 +116,9 @@ const generateGet = async (routeName) => {
     }
   }  
   module.exports = {
-    get${routeWithCapital},
+    post${routeWithCapital},
   }`
-  let controllerFileName = targetRootDir + `/controllers/${route}-get.controller.js`
+  let controllerFileName = targetRootDir + `/controllers/${route}-post.controller.js`
 
   fs.writeFile(controllerFileName, controllerJSCode, (err) => {
     if (err) {
@@ -179,7 +139,7 @@ const generateGet = async (routeName) => {
       return console.log(err)
     }
 
-    let replace1 = `const ${route}Service = require('./${route}-get.service') 
+    let replace1 = `const ${route}Service = require('./${route}-post.service') 
 //@insert1`
     let replace2 = `${route}Service, 
 //@insert2`
@@ -192,12 +152,12 @@ const generateGet = async (routeName) => {
     })
   })
   // **********************************************************
-  //  Step 5 - services/route-get.service.js file
+  //  Step 5 - services/route-post.service.js file
   // ***
 
   let serviceJSCode = `const { ${route}Db } = require('../db')
   // any additional call to datastore here
-  const ${route}Get = async (${passedObjectKeys}) => {
+  const ${route}Post = async (${passedObjectKeys}) => {
     try {
       return ${route}Db(${passedObjectKeys})
     } catch (e) {
@@ -206,9 +166,9 @@ const generateGet = async (routeName) => {
   }
   
   module.exports = {
-    ${route}Get,
+    ${route}Post,
   }`
-  let serviceFileName = targetRootDir + `/services/${route}-get.service.js`
+  let serviceFileName = targetRootDir + `/services/${route}-post.service.js`
 
   fs.writeFile(serviceFileName, serviceJSCode, (err) => {
     if (err) {
@@ -228,7 +188,7 @@ const generateGet = async (routeName) => {
       return console.log(err)
     }
 
-    let replace1 = `const { ${route}Db } = require('./${route}-get.db') 
+    let replace1 = `const { ${route}Db } = require('./${route}-post.db') 
 //@insert1`
     let replace2 = `${route}Db, 
 //@insert2`
@@ -243,8 +203,7 @@ const generateGet = async (routeName) => {
   // **********************************************************
   //  Step 7 - db/route-get.db.js file
   // ***
-  let testResponse =
-    '[{"id": 1,"email": "someone@redmug.dev","role": "superuser"}, {"id": 2,"email": "support@redmug.dev","role": "user"}]'
+  let testResponse = '[{"result": "Okay"}]'
   if (process.env.ROUTETESTRESPONSE !== '') {
     testResponse = process.env.ROUTETESTRESPONSE
   }
@@ -268,7 +227,7 @@ const generateGet = async (routeName) => {
   module.exports = {
     ${route}Db,
   }`
-  let dbFileName = targetRootDir + `/db/${route}-get.db.js`
+  let dbFileName = targetRootDir + `/db/${route}-post.db.js`
 
   fs.writeFile(dbFileName, dbPoolJSCode, (err) => {
     if (err) {
@@ -310,20 +269,22 @@ const generateGet = async (routeName) => {
   })
 }
 
-function parseObjectKeys(s, parameterType) {
-  if (parameterType === 'url') {
-    return s.substring(2).split('/:').join()
-  } else if (parameterType === 'queryString') {
-    let a = s.substring(1).split('&')
-    for (let i = 0; i < a.length; i++) {
-      a[i] = a[i].substring(0, a[i].indexOf('='))
+function parseObjectKeys(s, method) {
+  if (method === 'POST') {
+    let body = JSON.parse(s)
+    if (Object.keys(body).length === 0) {
+      // use default if non provided
+      body = JSON.parse(
+        "[{display_name: 'Robert xxx Collins', email: 'rcollins@redmug.dev', client_id: 1, user_status: 0, last_login: '2022-02-02 00:00:00',role: 'superuser'}]"
+      )
     }
-    return a.join()
+    console.log('body: ', body, ' method: ', method, 'typeof body', typeof body)
+    return Object.keys(body[0]).toString()
   } else {
     return ''
   }
 }
 
 module.exports = {
-  generateGet,
+  generatePost,
 }

@@ -1,0 +1,1 @@
+curl -d '[{"display_name": "Route Two",	"email": "rcollins@redmug.dev",	"client_id": 1,	"user_status": 0, "last_login": "2000-01-01 00:00:00",	"role": "superuser" }]' -H "Content-Type: application/json" -X POST http://localhost:3005/api/rtwo

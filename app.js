@@ -3,6 +3,7 @@ const fs = require('node:fs')
 
 const skeletonGeneration = require('./src/skeletonGeneration')
 const getRoutesGeneration = require('./src/getRoutesGeneration')
+const postRoutesGeneration = require('./src/postRoutesGeneration')
 
 const port = process.env.PORT
 
@@ -30,6 +31,7 @@ if (process.env.GENERATEROUTES === 'YES') {
   if (routeMethod === 'GET') {
     getRoutesGeneration.generateGet(routeName, routeRequestBody, overwriteRoute)
   } else if (routeMethod === 'POST') {
+    postRoutesGeneration.generatePost(routeName, routeRequestBody, overwriteRoute)
   } else if (routeMethod === 'PUT') {
   } else if (routeMethod === 'DELETE') {
   } else {
