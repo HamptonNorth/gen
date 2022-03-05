@@ -9,7 +9,7 @@ Authoritatively evolve technically sound infrastructures via intuitive total lin
 
 Returns all users
 
-```Javascript
+```Text
 # method                      GET
 # authentication              Y
 # example                     /api/users
@@ -20,7 +20,7 @@ Returns all users
 # body                        none
 ```
 
-```JSON
+```Text
 # response (collection)
 {
 	"status": "success",
@@ -40,7 +40,7 @@ Returns all users
 }
 ```
 
-```Bash
+```Text
 ## curl
 curl  -X Get http://localhost:3005/api/users
 ```
@@ -56,18 +56,18 @@ curl  -X Get http://localhost:3005/api/users
 
 Returns user record where id = [int]
 
-```Javascript
+```Text
 # method                      GET
 # authentication              Y
 # example                     /api/user/1
 # parameters                  none
 ```
 
-```
+```Text
 # body                        none
 ```
 
-```JSON
+```Text
 # success response
 {
 	"status": "success",
@@ -81,7 +81,7 @@ Returns user record where id = [int]
 }
 ```
 
-```JSON
+```Text
 # fail response
 {
 	"status": "fail",
@@ -91,8 +91,8 @@ Returns user record where id = [int]
 }
 ```
 
-```
-## curl
+```Text
+# curl
 curl  -X Get http://localhost:3005/api/users
 ```
 
@@ -107,14 +107,14 @@ curl  -X Get http://localhost:3005/api/users
 
 Add a user
 
-```Javascript
+```Text
 # method                      POST
 # authentication              Y
 # example                     /api/adduser
 # parameters                  none
 ```
 
-```JSON
+```Text
 # body                        Content-Type: application/json
 {
 	"display_name": "Robert Collins",
@@ -126,7 +126,7 @@ Add a user
 }
 ```
 
-```JSON
+```Text
 # success response
 {
 	"status": "success",
@@ -136,7 +136,7 @@ Add a user
 }
 ```
 
-```JSON
+```Text
 # fail response
 {
 	"status": "fail",
@@ -146,8 +146,8 @@ Add a user
 }
 ```
 
-```
-## curl
+```Text
+# curl
 curl -d '[{"display_name": "Route Two",	"email": "rcollins@redmug.dev",	"client_id": 1,	"user_status": 0, "last_login": "2000-01-01 00:00:00",	"role": "superuser" }]' -H "Content-Type: application/json" -X POST http://localhost:3005/api/adduser
 ```
 
