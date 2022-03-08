@@ -333,6 +333,16 @@ module.exports = connection
     console.log('Generation step - ' + folderNameDocs + '/API.docs.md' + ' written successfully')
   })
 
+  // Step 12 - Copy  routes-config-sample.json to routes-config.js
+  if (process.env.CREATEROUTESCONFIGFROMSAMPLE === 'YES') {
+    let routesConfigPath = `../${process.env.APPDIR}/configs/routes-config.json`
+
+    fs.copyFile('./configs/routes-config-sample.json', routesConfigPath, (err) => {
+      if (err) throw err
+      console.log(`sample config file copied to /${process.env.APPDIR}/configs/routes-config.json`)
+    })
+  }
+
   setTimeout(function () {
     console.log(
       'Generating skeleton files for app: /' +

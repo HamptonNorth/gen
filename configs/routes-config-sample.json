@@ -1,0 +1,100 @@
+[
+  {
+    "id": 1,
+    "name": "users",
+    "metod": "GET",
+    "requestbody": "",
+    "requestresponse": {
+      "status": "success",
+      "data": {
+        "users": [
+          {
+            "id": 1,
+            "email": "someone@redmug.dev",
+            "role": "superuser"
+          },
+          {
+            "id": 2,
+            "email": "support@redmug.dev",
+            "role": "user"
+          }
+        ]
+      }
+    },
+    "description": "returns collection of users",
+    "failmessages": "no users exist|To need permission to list users - contact system admin",
+    "notes": "This routes gets all users. For handling ranges of users use GET usersbyrange API call"
+  },
+  {
+    "id": 2,
+    "name": "user/:id",
+    "metod": "GET",
+    "requestbody": "",
+    "requestresponse": {
+      "status": "success",
+      "data": {
+        "users": {
+          "id": 1,
+          "email": "someone@redmug.dev",
+          "role": "superuser"
+        }
+      }
+    },
+    "description": "returns a single user matching id [int]",
+    "failmessages": "no users exists matching id",
+    "notes": ""
+  },
+  {
+    "id": 3,
+    "name": "usersearch?name=wil&country=UK",
+    "metod": "GET",
+    "requestbody": "",
+    "requestresponse": {
+      "status": "success",
+      "data": {
+        "users": [
+          {
+            "id": 12,
+            "email": "swilson@redmug.dev",
+            "role": "user"
+          },
+          {
+            "id": 52,
+            "email": "ajwilson@redmug.dev",
+            "role": "user"
+          },
+          {
+            "id": 67,
+            "email": "shwilson@redmug.dev",
+            "role": "user"
+          }
+        ]
+      }
+    },
+    "description": "returns collection users matching by name [string] and country [string] ",
+    "failmessages": "search returned no matching users",
+    "notes": "searches are case insensitive. Name is matched by 'starting with'. Country is matched to ISO 3166 codes"
+  },
+  {
+    "id": 4,
+    "name": "createuser",
+    "metod": "POST",
+    "requestbody": [
+      {
+        "display_name ": "Route Two ",
+        "email ": "rcollins @redmug.dev ",
+        "client_id ": 1,
+        "user_status ": 0,
+        "last_login ": "2000-01-01 00:00:00",
+        "role ": "superuser "
+      }
+    ],
+    "requestresponse": {
+      "status": "success",
+      "data": {}
+    },
+    "description": "Add a user to users table  ",
+    "failmessages": "display_name blank|email blank|invalid client_id|invalid user_status|invalid role",
+    "notes": "last_login date set to now() if not provided. For bulk user creation use import API"
+  }
+]
