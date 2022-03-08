@@ -244,7 +244,7 @@ const generateGet = async (routeName) => {
   //  Step 7 - db/route-get.db.js file
   // ***
   let testResponse =
-    '[{"id": 1,"email": "someone@redmug.dev","role": "superuser"}, {"id": 2,"email": "support@redmug.dev","role": "user"}]'
+    '{"status": "success",	"data": {"users": [{"id": 1,"email": "someone@redmug.dev", "role": "superuser"},{"id": 2,"email": "support@redmug.dev", "role": "user"}]}}'
   if (process.env.ROUTETESTRESPONSE !== '') {
     testResponse = process.env.ROUTETESTRESPONSE
   }
@@ -277,6 +277,7 @@ const generateGet = async (routeName) => {
     }
     // console.log('Generation step - ' + targetRootDir + '/db/index.js and ' + dbFileName + ' written successfully')
   })
+
   // **********************************************************
   //  Step 8 - tests/api-tests.test.js file
   // ***
@@ -305,6 +306,73 @@ const generateGet = async (routeName) => {
     let result = data.replace(/\/\/@insert1/g, replace1)
 
     fs.writeFile(targetRootDir + `/tests/api-tests.test.js`, result, 'utf8', function (err) {
+      if (err) return console.log(err)
+    })
+  })
+
+  // **********************************************************
+  //  Step 9 - docss/API.docs.md file
+  // ***
+  let fails = process.env.ROUTEFAILMESSAGES.split('|')
+  let failsText = ''
+  for (i = 0; i < fails.length; i++) {
+    failsText += `
+    {
+      "status": "fail",
+      "data": {
+        "message": "${fails[i]}"
+      }
+    }`
+  }
+  let docsMDCode = `
+  ## /api/adduser
+
+>Description:  ${process.env.ROUTEDESCRIPTION}
+
+\`\`\`Text
+# method                      ${method}
+# authentication              Y
+# example                     ${expressRouteLowerCase}
+# parameters                  ${message.substring(1)}
+# objectKeys                  ${passedObjectKeys}
+\`\`\`
+
+\`\`\`Text
+# body                        none
+\`\`\`
+
+\`\`\`Text
+# success response
+${JSON.stringify(JSON.parse(testResponse), null, 4)}
+\`\`\`
+
+\`\`\`Text
+# fail response examples(s)
+${failsText}
+\`\`\`
+
+\`\`\`Text
+# curl
+curl  -X POST http://localhost:${process.env.PORT}/api/${expressRouteLowerCase}
+\`\`\`
+
+> Notes:  ${process.env.ROUTENOTES}
+<hr><style="page-break-after: always;"></style>
+  
+  
+  `
+
+  fs.readFile(targetRootDir + `/docs/API.docs.md`, 'utf8', function (err, data) {
+    if (err) {
+      return console.log(err)
+    }
+
+    let replace1 = `${docsMDCode} 
+//@insert1`
+
+    let result = data.replace(/\/\/@insert1/g, replace1)
+
+    fs.writeFile(targetRootDir + `/docs/API.docs.md`, result, 'utf8', function (err) {
       if (err) return console.log(err)
     })
   })

@@ -28,6 +28,16 @@ const generateSkeleton = async (targetDir, targetRoot, port) => {
     console.error(err)
   }
 
+  // create docs dir
+  let folderNameDocs = targetRoot + '/docs'
+  try {
+    if (!fs.existsSync(folderNameDocs)) {
+      fs.mkdirSync(folderNameDocs)
+    }
+  } catch (err) {
+    console.error(err)
+  }
+
   // create routes dir
   let folderNameRoutes = targetRoot + '/routes'
   try {
@@ -306,6 +316,21 @@ module.exports = connection
       return
     }
     console.log('Generation step - ' + folderNameTests + '/api-tests.test.js' + ' written successfully')
+  })
+
+  // Step 11 - create skeleton code for docs/api.docs.md ----------------------------------------------------------
+
+  let docsMDCode = `# ${process.env.APPDIR} server.js API docs
+  //TODO insert general description of server, API & database
+  <br><br>
+  //@insert1
+  `
+  fs.writeFileSync(folderNameDocs + '/API.docs.md', docsMDCode, (err) => {
+    if (err) {
+      console.log('error writing ' + folderNameDocs + '/API.docs.md', err)
+      return
+    }
+    console.log('Generation step - ' + folderNameDocs + '/API.docs.md' + ' written successfully')
   })
 
   setTimeout(function () {
