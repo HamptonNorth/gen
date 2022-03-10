@@ -285,7 +285,7 @@ module.exports = connection
  
  module.exports = pool
  `
-  console.log('folderNameDb', folderNameDb)
+  // console.log('folderNameDb', folderNameDb)
   //   write db.js
   fs.writeFileSync(folderNameDb + '/db-pool.js', dbPoolDbJSCode, (err) => {
     if (err) {
