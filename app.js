@@ -1,6 +1,16 @@
 const dotenv = require('dotenv').config()
 const fs = require('node:fs')
 
+// for (let z = 0; z < 6; z++) {
+//   console.log('args ', z, process.argv[z], typeof process.argv[z])
+// }
+
+const setup = require('./src/setup')
+const skeletonGeneration = require('./src/skeletonGeneration')
+const getRoutesGeneration = require('./src/getRoutesGeneration')
+const postRoutesGeneration = require('./src/postRoutesGeneration')
+const { exit } = require('node:process')
+
 // process command line options
 
 const skeleton = process.argv.indexOf('--skeleton') > -1 ? true : false
@@ -8,32 +18,39 @@ const route = process.argv.indexOf('--route') > -1 ? true : false
 const docs = process.argv.indexOf('--docs') > -1 ? true : false
 const help = process.argv.indexOf('--help') > -1 ? true : false
 const version = process.argv.indexOf('--version') > -1 ? true : false
+const purge = process.argv.indexOf('--purge') > -1 ? true : false
 
-// must be one of skeleton, route, docs (flag set
-if (!skeleton && !route && !docs && !help && !version) {
-  console.log('ERROR - No valid command line options set.')
-  commandLineHelp()
+// must be one of skeleton, route, docs, help or version
+if (!skeleton && !route && !docs && !help && !version && !purge) {
+  commandLineHelp('no option set or option is invalid')
 }
 
-// Checks for --route and if it has a routeID [string] and routeID is valid
-if (route) {
-  const routeIndex = process.argv.indexOf('--route')
-  let routeID
+let gen = {}
 
-  if (routeIndex > -1) {
-    // Retrieve the value after --custom
-    routeID = process.argv[routeIndex + 1]
-    if (typeof routeID === 'undefined') {
-      console.log('ERROR - route option set but no route id provided', typeof routeID)
-      process.exit(1)
-    }
+gen.port = process.env.PORT
+gen.targetDir = process.env.APPDIR
+gen.targetRoot = process.env.APPPATH + process.env.APPDIR
+gen.dirs = ['configs', 'controllers', 'db', 'docs', 'routes', 'services', 'tests']
 
-    let routeDetail
-    getRouteDetail(routeID).then((r) => {
-      console.log('route detail promise resolved')
-    })
-    // console.log('routeID', routeID, ' typeof:', typeof routeID, 'routeDetail', routeDetail)
-  }
+if (purge) {
+  console.log('Deleting all existing directories and content: ')
+  setup.purge(gen)
+  exit(1)
+}
+
+if (skeleton) {
+  console.log('Generating skeleton files for app: /' + gen.targetDir)
+  skeletonGeneration.generateSkeleton(gen)
+} else {
+  console.log('No skeleton generation - using existing skeleton for app: /' + gen.targetDir)
+}
+
+if (docs) {
+  console.log('Generating API documentation - stub')
+}
+
+if (help) {
+  commandLineHelp()
 }
 
 if (version) {
@@ -41,66 +58,54 @@ if (version) {
   console.log('version =', package_json.version)
   process.exit(1)
 }
-if (help) {
-  commandLineHelp()
+
+// Checks for --route and if it has a routeID [string] and routeID is valid
+// --route 2            valid & gets single route definition with id = 1
+// --route 1,2,3,5-8    valid and expands to 1,2,3,4,5,6,7,8
+// -- route all         get all ids from the routes-config to auto build the routeID string
+if (route) {
+  const routeIndex = process.argv.indexOf('--route')
+  let routeArg
+  let commaListRouteArg
+
+  if (routeIndex > -1) {
+    // Retrieve the value after --route
+    routeArg = process.argv[3]
+    if (typeof routeArg === 'undefined') {
+      commandLineHelp('route option set but no route id provided')
+    }
+    if (routeArg.slice(-1) === ',') {
+      commandLineHelp('route option set but arguement string has trailing comma')
+    }
+    if (typeof process.argv[4] === 'string') {
+      commandLineHelp('route option set but too many arguements (hint: check for spaces e.g --route 1, 3)')
+    }
+
+    if (routeArg.toLowerCase() === 'all') {
+      // if routeArg contains range(s) expand to comma seprated list
+      commaListRouteArg = idsFromFile().then((commaListRouteArg) => {
+        console.log('commaListRouteArg', commaListRouteArg)
+        if (typeof commaListRouteArg.length == 0) {
+          commandLineHelp('getting array of ids from config file failed')
+        }
+      })
+    } else {
+      // if routeArg contains range(s) expand to comma seprated list
+      commaListRouteArg = expandRange(routeArg)
+
+      console.log(
+        'commaListRouteArg:',
+        commaListRouteArg,
+        'typeof:',
+        typeof commaListRouteArg,
+        'length:',
+        commaListRouteArg.length,
+        'is array?:',
+        Array.isArray(commaListRouteArg)
+      )
+    }
+  }
 }
-
-// const yargs = require('yargs/yargs')
-// const { hideBin } = require('yargs/helpers')
-// const argv = yargs(hideBin(process.argv))
-//   .usage('Usage: $0 <command> [options]')
-//   .option('skeleton', {
-//     type: 'boolean',
-//     description: 'Generate new skeleton:',
-//   })
-//   .parse()
-
-//   if (
-//         (argv.skeleton && argv.route) ||
-//         (argv.skeleton && argv.docs) ||
-//         (argv.route && argv.docs) ||
-//         (argv.skeleton && argv.route && argv.docs)
-//       ) {
-//         console.log('argv:', argv)
-//         return 'Only set one of --skeleton, --route, --docs'
-//       }
-
-// // .option('route', {
-//   type: 'boolean',
-
-//   description: 'Generate new route:',
-// })
-// .option('docs', {
-//   type: 'boolean',
-
-//   description: 'Generate API documenatation:',
-// })
-
-// .check((argv) => {
-//   if (
-//     (argv.skeleton && argv.route) ||
-//     (argv.skeleton && argv.docs) ||
-//     (argv.route && argv.docs) ||
-//     (argv.skeleton && argv.route && argv.docs)
-//   ) {
-//     console.log('argv:', argv)
-//     return 'Only set one of --skeleton, --route, --docs'
-//   }
-// })
-// .parse()
-
-const skeletonGeneration = require('./src/skeletonGeneration')
-const getRoutesGeneration = require('./src/getRoutesGeneration')
-const postRoutesGeneration = require('./src/postRoutesGeneration')
-const { listeners } = require('node:process')
-
-const port = process.env.PORT
-
-const targetDir = process.env.APPDIR
-
-let targetRoute = process.env.APPPATH + process.env.APPDIR
-
-// console.log('targetRoute', targetRoute)
 
 process.exit()
 
@@ -136,18 +141,61 @@ if (process.env.GENERATEROUTES === 'YES') {
 } else {
   console.log('No route generation set in .env')
 }
-
-
+function expandRange(routeArg) {
+  let argArray = routeArg.split(',')
+  console.log('argArray', argArray, 'typeof', typeof argArray)
+  let res = []
+  for (let i = 0; i < argArray.length; i++) {
+    if (argArray[i].indexOf('-') === -1) {
+      res.push(parseInt(argArray[i]))
+    } else {
+      let range = argArray[i].split('-')
+      let x = 0
+      for (let n = parseInt(range[0]); n < parseInt(range[1]) + 1; n++) {
+        res.push(parseInt(n))
+        x++
+      }
+      if (x === 0) {
+        commandLineHelp("range expansion error (hint: check for 'to' > 'from' e.g. 5-3)")
+      }
+    }
+  }
+  // returns array of ints
+  return res
 }
-function commandLineHelp() {
-  console.log('Select one from the following line options : \n')
-  console.log('\t  --skeleton \t\t to generate directories and new boilerplate code')
-  console.log(
-    '\t  --route n  \t\t to add a route to an existing skeleton. The route is defined in configs/routes-config.json and n matches the route id'
+
+async function idsFromFile() {
+  // console.log('path:', process.env.APPPATH + process.env.APPDIR)
+  let allIds = []
+  const r = await JSON.parse(
+    fs.readFileSync(process.env.APPPATH + 'async-test/configs/routes-config.json', {
+      encoding: 'utf8',
+      flag: 'r',
+    })
   )
-  console.log('\t  --docs     \t\t to generate the API documentation in markdown and HTML')
-  console.log('\t  --help     \t\t to print this help')
-  console.log('\t  --version  \t\t to print version')
+
+  // console.log('r:', r, 'typeof r', typeof r)
+  r.forEach(function (thisRoute) {
+    console.log('this id: ', thisRoute.id)
+    allIds.push(thisRoute.id)
+  })
+  console.log('allIds', allIds)
+  return allIds
+}
+
+function commandLineHelp(e) {
+  if (e !== '') {
+    console.error('\n\033[91m*** ERROR *** -', e, '\033[0m\n')
+  }
+  console.log('Provide one from the following coomand line options : \n')
+  console.log('\t  --skeleton \t\t generate directories and new boilerplate code')
+  console.log(
+    '\t  --route 1  \t\t add route to an existing skeleton. Route defined in configs/routes-config.json id = 1'
+  )
+  console.log('\t  --route 1,5-7  \t add multiple routes id = 1,5,6,7')
+  console.log('\t  --docs     \t\t generate the API documentation in markdown and HTML')
+  console.log('\t  --help     \t\t print this help')
+  console.log('\t  --version  \t\t print version')
   // console.log('\n')
   process.exit(1)
 }

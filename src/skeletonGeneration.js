@@ -1,12 +1,13 @@
 const { Console } = require('node:console')
 const fs = require('node:fs')
-const generateSkeleton = async (targetDir, targetRoot, port) => {
+const generateSkeleton = async (gen) => {
+  // console.log('gen:', gen)
   // check target dir does not contain already server.js
   try {
-    if (fs.existsSync(targetRoot + '/server.js')) {
+    if (fs.existsSync(gen.targetRoot + '/server.js')) {
       if (process.env.OVERWRITESKELETON !== 'YES' || !fs.existsSync(folderNameRoutes)) {
         console.log(
-          targetRoot +
+          gen.targetRoot +
             ' - files already exist - set overwrite in .env and delete existing routes directory to generate new skeleton!'
         )
         process.exit(1)
@@ -18,73 +19,85 @@ const generateSkeleton = async (targetDir, targetRoot, port) => {
 
   // Create all directories ----------------------------------------------------------
 
-  // create tests dir
-  let folderNameTests = targetRoot + '/tests'
-  try {
-    if (!fs.existsSync(folderNameTests)) {
-      fs.mkdirSync(folderNameTests)
+  for (let i = 0; i < gen.dirs.length; i++) {
+    let path = gen.targetRoot + '/' + gen.dirs[i]
+    try {
+      if (!fs.existsSync(path)) {
+        fs.mkdirSync(path)
+      }
+    } catch (err) {
+      console.error(err)
     }
-  } catch (err) {
-    console.error(err)
+    console.log('   ' + gen.targetDir + '/' + gen.dirs[i] + ' created')
   }
+
+  // create tests dir
+  let folderNameTests = gen.targetRoot + '/tests'
+  // try {
+  //   if (!fs.existsSync(folderNameTests)) {
+  //     fs.mkdirSync(folderNameTests)
+  //   }
+  // } catch (err) {
+  //   console.error(err)
+  // }
 
   // create docs dir
-  let folderNameDocs = targetRoot + '/docs'
-  try {
-    if (!fs.existsSync(folderNameDocs)) {
-      fs.mkdirSync(folderNameDocs)
-    }
-  } catch (err) {
-    console.error(err)
-  }
+  let folderNameDocs = gen.targetRoot + '/docs'
+  // try {
+  //   if (!fs.existsSync(folderNameDocs)) {
+  //     fs.mkdirSync(folderNameDocs)
+  //   }
+  // } catch (err) {
+  //   console.error(err)
+  // }
 
   // create routes dir
-  let folderNameRoutes = targetRoot + '/routes'
-  try {
-    if (!fs.existsSync(folderNameRoutes)) {
-      fs.mkdirSync(folderNameRoutes)
-    }
-  } catch (err) {
-    console.error(err)
-  }
+  let folderNameRoutes = gen.targetRoot + '/routes'
+  // try {
+  //   if (!fs.existsSync(folderNameRoutes)) {
+  //     fs.mkdirSync(folderNameRoutes)
+  //   }
+  // } catch (err) {
+  //   console.error(err)
+  // }
   // create controllers dir
-  let folderNameControllers = targetRoot + '/controllers'
-  try {
-    if (!fs.existsSync(folderNameControllers)) {
-      fs.mkdirSync(folderNameControllers)
-    }
-  } catch (err) {
-    console.error(err)
-  }
+  let folderNameControllers = gen.targetRoot + '/controllers'
+  // try {
+  //   if (!fs.existsSync(folderNameControllers)) {
+  //     fs.mkdirSync(folderNameControllers)
+  //   }
+  // } catch (err) {
+  //   console.error(err)
+  // }
 
   // create services dir
-  let folderNameSevices = targetRoot + '/services'
-  try {
-    if (!fs.existsSync(folderNameSevices)) {
-      fs.mkdirSync(folderNameSevices)
-    }
-  } catch (err) {
-    console.error(err)
-  }
+  let folderNameSevices = gen.targetRoot + '/services'
+  // try {
+  //   if (!fs.existsSync(folderNameSevices)) {
+  //     fs.mkdirSync(folderNameSevices)
+  //   }
+  // } catch (err) {
+  //   console.error(err)
+  // }
   // create db dir
-  let folderNameDb = targetRoot + '/db'
-  try {
-    if (!fs.existsSync(folderNameDb)) {
-      fs.mkdirSync(folderNameDb)
-    }
-  } catch (err) {
-    console.error(err)
-  }
+  let folderNameDb = gen.targetRoot + '/db'
+  // try {
+  //   if (!fs.existsSync(folderNameDb)) {
+  //     fs.mkdirSync(folderNameDb)
+  //   }
+  // } catch (err) {
+  //   console.error(err)
+  // }
 
   // create configs directory
-  let folderNameConfigs = targetRoot + '/configs'
-  try {
-    if (!fs.existsSync(folderNameConfigs)) {
-      fs.mkdirSync(folderNameConfigs)
-    }
-  } catch (err) {
-    console.error(err)
-  }
+  let folderNameConfigs = gen.targetRoot + '/configs'
+  // try {
+  //   if (!fs.existsSync(folderNameConfigs)) {
+  //     fs.mkdirSync(folderNameConfigs)
+  //   }
+  // } catch (err) {
+  //   console.error(err)
+  // }
 
   // Step 1 - generate app.js skeleton code ----------------------------------------------------------
   let appJSCode = `const express = require('express')
@@ -99,28 +112,28 @@ app.use('/api', routes)
 module.exports =  app
 `
 
-  fs.writeFileSync(targetRoot + '/app.js', appJSCode, (err) => {
+  fs.writeFileSync(gen.targetRoot + '/app.js', appJSCode, (err) => {
     if (err) {
-      console.log('error writing ' + targetRoot + '/app.js', err)
+      console.log('error writing ' + gen.targetRoot + '/app.js', err)
       return
     }
-    console.log('Generation step - ' + targetRoot + '/app.js' + ' written successfully')
+    console.log('Generation step - ' + gen.targetRoot + '/app.js' + ' written successfully')
   })
 
   // Step 2 - generate server.js skeleton code ----------------------------------------------------------
 
   let serverJSCode = `const app = require('./app')
 
-app.listen(${port}, () => {
-  console.log('Generated REST API server app listening on port ${port}')
+app.listen(${gen.port}, () => {
+  console.log('Generated REST API server app listening on port ${gen.port}')
 })
 `
-  fs.writeFileSync(targetRoot + '/server.js', serverJSCode, (err) => {
+  fs.writeFileSync(gen.targetRoot + '/server.js', serverJSCode, (err) => {
     if (err) {
-      console.log('error writing ' + targetRoot + '/server.js', err)
+      console.log('error writing ' + gen.targetRoot + '/server.js', err)
       return
     }
-    console.log('Generation step - ' + targetRoot + '/server.js' + ' written successfully')
+    console.log('Generation step - ' + gen.targetRoot + '/server.js' + ' written successfully')
   })
 
   // Step 3 - create skeleton code for routes/index.js ----------------------------------------------------------
@@ -209,14 +222,14 @@ module.exports = {
   } else {
     console.log('ERROR - invalid DB provider! - Check the .env file setting ')
   }
-  let dbConfigFileName = targetRoot + `/configs/dbconfig.js`
+  let dbConfigFileName = gen.targetRoot + `/configs/dbconfig.js`
 
   fs.writeFileSync(dbConfigFileName, dbConfigJSCode, (err) => {
     if (err) {
       console.log('error writing ' + dbConfigFileName, err)
       return
     }
-    console.log('Generation step - ' + targetRoot + '/configs/dbconfigs.js  written successfully')
+    console.log('Generation step - ' + gen.targetRoot + '/configs/dbconfigs.js  written successfully')
   })
 
   // Step 8 - create individual db connection /db/db.js ----------------------------------------------------------
