@@ -1,11 +1,10 @@
-const { Console } = require('node:console')
 const fs = require('node:fs')
 const generateSkeleton = async (gen) => {
   // console.log('gen:', gen)
   // check target dir does not contain already server.js
   try {
     if (fs.existsSync(gen.targetRoot + '/server.js')) {
-      if (process.env.OVERWRITESKELETON !== 'YES' || !fs.existsSync(folderNameRoutes)) {
+      if (process.env.OVERWRITESKELETON !== 'YES' || !fs.existsSync(gen.targetRoot + '/routes')) {
         console.log(
           gen.targetRoot +
             ' - files already exist - set overwrite in .env and delete existing routes directory to generate new skeleton!'
@@ -31,74 +30,6 @@ const generateSkeleton = async (gen) => {
     console.log('   ' + gen.targetDir + '/' + gen.dirs[i] + ' created')
   }
 
-  // create tests dir
-  let folderNameTests = gen.targetRoot + '/tests'
-  // try {
-  //   if (!fs.existsSync(folderNameTests)) {
-  //     fs.mkdirSync(folderNameTests)
-  //   }
-  // } catch (err) {
-  //   console.error(err)
-  // }
-
-  // create docs dir
-  let folderNameDocs = gen.targetRoot + '/docs'
-  // try {
-  //   if (!fs.existsSync(folderNameDocs)) {
-  //     fs.mkdirSync(folderNameDocs)
-  //   }
-  // } catch (err) {
-  //   console.error(err)
-  // }
-
-  // create routes dir
-  let folderNameRoutes = gen.targetRoot + '/routes'
-  // try {
-  //   if (!fs.existsSync(folderNameRoutes)) {
-  //     fs.mkdirSync(folderNameRoutes)
-  //   }
-  // } catch (err) {
-  //   console.error(err)
-  // }
-  // create controllers dir
-  let folderNameControllers = gen.targetRoot + '/controllers'
-  // try {
-  //   if (!fs.existsSync(folderNameControllers)) {
-  //     fs.mkdirSync(folderNameControllers)
-  //   }
-  // } catch (err) {
-  //   console.error(err)
-  // }
-
-  // create services dir
-  let folderNameSevices = gen.targetRoot + '/services'
-  // try {
-  //   if (!fs.existsSync(folderNameSevices)) {
-  //     fs.mkdirSync(folderNameSevices)
-  //   }
-  // } catch (err) {
-  //   console.error(err)
-  // }
-  // create db dir
-  let folderNameDb = gen.targetRoot + '/db'
-  // try {
-  //   if (!fs.existsSync(folderNameDb)) {
-  //     fs.mkdirSync(folderNameDb)
-  //   }
-  // } catch (err) {
-  //   console.error(err)
-  // }
-
-  // create configs directory
-  let folderNameConfigs = gen.targetRoot + '/configs'
-  // try {
-  //   if (!fs.existsSync(folderNameConfigs)) {
-  //     fs.mkdirSync(folderNameConfigs)
-  //   }
-  // } catch (err) {
-  //   console.error(err)
-  // }
-
   // Step 1 - generate app.js skeleton code ----------------------------------------------------------
   let appJSCode = `const express = require('express')
 const bodyParser = require('body-parser')
@@ -111,7 +42,6 @@ app.use('/api', routes)
 
 module.exports =  app
 `
-
   fs.writeFileSync(gen.targetRoot + '/app.js', appJSCode, (err) => {
     if (err) {
       console.log('error writing ' + gen.targetRoot + '/app.js', err)
@@ -144,12 +74,12 @@ const router = express.Router()
 //@insert2
 
 module.exports = router`
-  fs.writeFileSync(folderNameRoutes + '/index.js', routesIndexJSCode, (err) => {
+  fs.writeFileSync(`${gen.targetRoot}/routes/index.js`, routesIndexJSCode, (err) => {
     if (err) {
-      console.log('error writing ' + folderNameRoutes + '/index.js', err)
+      console.log(`error writing ${gen.targetRoot}/routes/index.js`, err)
       return
     }
-    console.log('Generation step - ' + folderNameRoutes + '/index.js' + ' written successfully')
+    console.log(`Generation step - ${gen.targetRoot}/routes/index.js written successfully`)
   })
 
   // Step 4 - create skeleton code for contollers/index.js ----------------------------------------------------------
@@ -161,12 +91,12 @@ module.exports = {
     //@insert2
   }`
 
-  fs.writeFileSync(folderNameControllers + '/index.js', controllersIndexJSCode, (err) => {
+  fs.writeFileSync(`${gen.targetRoot}/controllers/index.js`, controllersIndexJSCode, (err) => {
     if (err) {
-      console.log('error writing ' + folderNameControllers + '/index.js', err)
+      console.log(`error writing ${gen.targetRoot}/controllers/index.js`, err)
       return
     }
-    console.log('Generation step - ' + folderNameControllers + '/index.js' + ' written successfully')
+    console.log(`Generation step - ${gen.targetRoot}/controllers/index.js written successfully`)
   })
 
   // Step 5 - create skeleton code for services/index.js ----------------------------------------------------------
@@ -179,12 +109,12 @@ module.exports = {
   }`
 
   //   write skeleton index.js
-  fs.writeFileSync(folderNameSevices + '/index.js', servicesIndexJSCode, (err) => {
+  fs.writeFileSync(`${gen.targetRoot}/services/index.js`, servicesIndexJSCode, (err) => {
     if (err) {
-      console.log('error writing ' + folderNameSevices + '/index.js', err)
+      console.log(`error writing ${gen.targetRoot}/services/index.js`, err)
       return
     }
-    console.log('Generation step - ' + folderNameSevices + '/index.js' + ' written successfully')
+    console.log(`Generation step - ${gen.targetRoot}/services/index.js written successfully`)
   })
 
   // Step 6 - create skeleton code for db/index.js ----------------------------------------------------------
@@ -196,12 +126,12 @@ module.exports = {
     //@insert2
   }`
 
-  fs.writeFileSync(folderNameDb + '/index.js', dbIndexJSCode, (err) => {
+  fs.writeFileSync(`${gen.targetRoot}/db/index.js`, dbIndexJSCode, (err) => {
     if (err) {
-      console.log('error writing ' + folderNameDb + '/index.js', err)
+      console.log(`error writing ${gen.targetRoot}/db/index.js`, err)
       return
     }
-    console.log('Generation step - ' + folderNameDb + '/index.js' + ' written successfully')
+    console.log(`Generation step - ${gen.targetRoot}/db/index.js written successfully`)
   })
 
   //  Step 7 - db config /configs/dbconfigs.js file ----------------------------------------------------------
@@ -222,14 +152,13 @@ module.exports = {
   } else {
     console.log('ERROR - invalid DB provider! - Check the .env file setting ')
   }
-  let dbConfigFileName = gen.targetRoot + `/configs/dbconfig.js`
 
-  fs.writeFileSync(dbConfigFileName, dbConfigJSCode, (err) => {
+  fs.writeFileSync(`${gen.targetRoot}/configs/dbconfig.js`, dbConfigJSCode, (err) => {
     if (err) {
-      console.log('error writing ' + dbConfigFileName, err)
+      console.log(`error writing ${gen.targetRoot}/configs/dbconfig.js`, err)
       return
     }
-    console.log('Generation step - ' + gen.targetRoot + '/configs/dbconfigs.js  written successfully')
+    console.log(`Generation step - ${gen.targetRoot}/configs/dbconfig.js  written successfully`)
   })
 
   // Step 8 - create individual db connection /db/db.js ----------------------------------------------------------
@@ -260,12 +189,12 @@ module.exports = connection
 `
 
   //   write db.js
-  fs.writeFileSync(folderNameDb + '/db.js', dbDbJSCode, (err) => {
+  fs.writeFileSync(`${gen.targetRoot}/db/db.js`, dbDbJSCode, (err) => {
     if (err) {
-      console.log('error writing ' + folderNameDb + '/Db.js', err)
+      console.log(`error writing ${gen.targetRoot}/db/db.js`, err)
       return
     }
-    console.log('Generation step - ' + folderNameDb + '/Db.js' + ' written successfully')
+    console.log(`Generation step - ${gen.targetRoot}/db/db.js written successfully`)
   })
 
   // Step 9 - create pooled db connection /db/db-pool.js ----------------------------------------------------------
@@ -300,12 +229,12 @@ module.exports = connection
  `
   // console.log('folderNameDb', folderNameDb)
   //   write db.js
-  fs.writeFileSync(folderNameDb + '/db-pool.js', dbPoolDbJSCode, (err) => {
+  fs.writeFileSync(`${gen.targetRoot}/db/db-pool.js`, dbPoolDbJSCode, (err) => {
     if (err) {
-      console.log('error writing ' + folderNameDb + '/Db-pool.js', err)
+      console.log(`error writing ${gen.targetRoot}/db/db-pool.js`, err)
       return
     }
-    console.log('Generation step - ' + folderNameDb + '/Db-pool.js' + ' written successfully')
+    console.log(`Generation step - ${gen.targetRoot}/db/db-pool.js written successfully`)
   })
 
   // Step 10 - create skeleton code for api-tests.test.js ----------------------------------------------------------
@@ -323,12 +252,12 @@ module.exports = connection
   pool.end()
   })
 `
-  fs.writeFileSync(folderNameTests + '/api-tests.test.js', testSkeletonJSCode, (err) => {
+  fs.writeFileSync(`${gen.targetRoot}/tests/api-tests.test.js`, testSkeletonJSCode, (err) => {
     if (err) {
-      console.log('error writing ' + folderNameTests + '/api-tests.test.js', err)
+      console.log(`error writing ${gen.targetRoot}/tests/api-tests.test.js`, err)
       return
     }
-    console.log('Generation step - ' + folderNameTests + '/api-tests.test.js' + ' written successfully')
+    console.log(`Generation step - ${gen.targetRoot}/tests/api-tests.test.js written successfully`)
   })
 
   // Step 11 - create skeleton code for docs/api.docs.md ----------------------------------------------------------
@@ -338,12 +267,12 @@ module.exports = connection
   <br><br>
   //@insert1
   `
-  fs.writeFileSync(folderNameDocs + '/API.docs.md', docsMDCode, (err) => {
+  fs.writeFileSync(`${gen.targetRoot}/docs/API.docs.md`, docsMDCode, (err) => {
     if (err) {
-      console.log('error writing ' + folderNameDocs + '/API.docs.md', err)
+      console.log(`error writing ${gen.targetRoot}/docs/API.docs.md`, err)
       return
     }
-    console.log('Generation step - ' + folderNameDocs + '/API.docs.md' + ' written successfully')
+    console.log(`Generation step - ${gen.targetRoot}/docs/API.docs.md written successfully`)
   })
 
   // Step 12 - Copy  routes-config-sample.json to routes-config.js
