@@ -129,48 +129,24 @@ async function idsFromFile() {
 }
 
 function genRoutes(commaListRouteArg) {
-  console.log('Generating routes for :', commaListRouteArg.toString())
+  console.log('Generating routes for configuration(s):', commaListRouteArg.toString())
   // check for duplicates
   let t = Array.from(new Set(commaListRouteArg))
   if (commaListRouteArg.length !== t.length) {
     commandLineHelp('resulting array of routes contained duplicates')
   }
+  for (let i = 0; i < commaListRouteArg.length; i++) {
+    getRouteDef(commaListRouteArg[i]).then((thisRoute) => {
+      // console.log('********* ID = ', commaListRouteArg[i], '\n', thisRoute, 'gen:', gen)
+      // Generate this route
+      if (thisRoute[0].method === 'GET') {
+        // console.log('method = GET')
+        getRoutesGeneration.generateGet(thisRoute[0], gen)
+      }
+    })
+  }
 }
 
-// process.exit()
-
-// if neither skeleton, routes or docs are set in command line then exit
-// console.log('argv:', process.argv)
-// if (process.env.GENERATESKELETON) {
-//   console.log('Generating skeleton files for app: /' + targetDir)
-//   skeletonGeneration.generateSkeleton(targetDir, targetRoot, port)
-// } else {
-//   console.log('No skeleton generation - using existing skeleton for app: /' + targetDir)
-// }
-
-// let routeName = process.env.ROUTENAME
-// let routeMethod = process.env.ROUTEMETHOD
-// let routeRequestBody = process.env.ROUTEREQUESTBODY
-// let overwriteRoute = process.env.OVERWRITEROUTE
-
-// if (process.env.GENERATEROUTES === 'YES') {
-//   if (routeName === '') {
-//     console.log('ERROR - Route is empty! - check the .env file settings')
-//     process.exit(1)
-//   }
-//   if (routeMethod === 'GET') {
-//     getRoutesGeneration.generateGet(routeName, routeRequestBody, overwriteRoute)
-//   } else if (routeMethod === 'POST') {
-//     postRoutesGeneration.generatePost(routeName, routeRequestBody, overwriteRoute)
-//   } else if (routeMethod === 'PUT') {
-//   } else if (routeMethod === 'DELETE') {
-//   } else {
-//     console.log('ERROR - Route method not valid - check the .env file settings')
-//     process.exit(1)
-//   }
-// } else {
-//   console.log('No route generation set in .env')
-// }
 function expandRange(routeArg) {
   let argArray = routeArg.split(',')
   let res = []
@@ -193,29 +169,15 @@ function expandRange(routeArg) {
   return res
 }
 
-async function idsFromFilex() {
-  let allIds = []
-  let configPath = process.env.APPPATH + 'gen/configs/routes-config.json'
-
-  if (fs.existsSync(configPath)) {
-    // console.log('routes-config.json file exists')
-    const r = await JSON.parse(
-      fs.readFileSync(configPath, {
-        encoding: 'utf8',
-        flag: 'r',
-      })
-    )
-    // console.log('r:', r)
-    r.forEach(function (thisRoute) {
-      // console.log('this id: ', thisRoute.id)
-      allIds.push(thisRoute.id)
+async function getRouteDef(id) {
+  // console.log('path:', process.env.APPPATH + process.env.APPDIR)
+  const r = await JSON.parse(
+    fs.readFileSync(process.env.APPPATH + 'async-test/configs/routes-config.json', {
+      encoding: 'utf8',
+      flag: 'r',
     })
-    // console.log('allIds', allIds)
-    return allIds
-  } else {
-    console.log('ERROR - routes-config.json file does not exist')
-    return
-  }
+  )
+  return await r.filter((element) => element.id == id)
 }
 
 function commandLineHelp(e) {
@@ -223,6 +185,7 @@ function commandLineHelp(e) {
     console.error('\n\033[91m*** ERROR *** -', e, '\033[0m\n')
   }
   console.log('Provide one from the following command line options : \n')
+  console.log('\t  --purge \t\t deletes all generated directories and content')
   console.log('\t  --skeleton \t\t generate directories and new boilerplate code')
   console.log(
     '\t  --route 1  \t\t add route to an existing skeleton. Route defined in configs/routes-config.json id = 1'

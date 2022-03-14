@@ -2,7 +2,7 @@
   {
     "id": 1,
     "name": "users",
-    "metod": "GET",
+    "method": "GET",
     "requestbody": "",
     "requestresponse": {
       "status": "success",
@@ -28,7 +28,7 @@
   {
     "id": 2,
     "name": "user/:id",
-    "metod": "GET",
+    "method": "GET",
     "requestbody": "",
     "requestresponse": {
       "status": "success",
@@ -47,7 +47,7 @@
   {
     "id": 3,
     "name": "usersearch?name=wil&country=UK",
-    "metod": "GET",
+    "method": "GET",
     "requestbody": "",
     "requestresponse": {
       "status": "success",
@@ -78,7 +78,7 @@
   {
     "id": 4,
     "name": "createuser",
-    "metod": "POST",
+    "method": "POST",
     "requestbody": [
       {
         "display_name ": "Route Two ",
