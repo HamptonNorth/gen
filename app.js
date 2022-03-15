@@ -53,7 +53,8 @@ if (help) {
 
 if (version) {
   const package_json = require('./package.json')
-  console.log('version =', package_json.version)
+  console.log('gen version =', package_json.version)
+  console.log('node version =', process.versions.node)
   process.exit(1)
 }
 
@@ -137,14 +138,21 @@ function genRoutes(commaListRouteArg) {
   }
   for (let i = 0; i < commaListRouteArg.length; i++) {
     getRouteDef(commaListRouteArg[i]).then((thisRoute) => {
-      // console.log('********* ID = ', commaListRouteArg[i], '\n', thisRoute, 'gen:', gen)
       // Generate this route
       if (thisRoute[0].method === 'GET') {
-        // console.log('method = GET')
-        getRoutesGeneration.generateGet(thisRoute[0], gen)
+        genGetRoutes(thisRoute[0], gen)
+      }
+      if (thisRoute[0].method === 'POST') {
+        postRoutesGeneration.generatePost(thisRoute[0], gen)
       }
     })
   }
+}
+
+async function genGetRoutes(thisRoute, gen) {
+  await getRoutesGeneration.generateGet(thisRoute, gen).then(() => {
+    return
+  })
 }
 
 function expandRange(routeArg) {

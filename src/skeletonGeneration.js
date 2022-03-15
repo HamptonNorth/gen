@@ -4,13 +4,8 @@ const generateSkeleton = async (gen) => {
   // check target dir does not contain already server.js
   try {
     if (fs.existsSync(gen.targetRoot + '/server.js')) {
-      if (process.env.OVERWRITESKELETON !== 'YES' || !fs.existsSync(gen.targetRoot + '/routes')) {
-        console.log(
-          gen.targetRoot +
-            ' - files already exist - set overwrite in .env and delete existing routes directory to generate new skeleton!'
-        )
-        process.exit(1)
-      }
+      console.log(gen.targetRoot + ' - files already exist - use --purge and then generate new skeleton')
+      process.exit(1)
     }
   } catch (err) {
     console.error(err)
@@ -299,7 +294,7 @@ module.exports = connection
         gen.targetDir +
         ' completed successfully ------------------------------------'
     )
-  }, 2000)
+  }, 1000)
 }
 
 module.exports = {
