@@ -1,8 +1,8 @@
 # Generator
 
-Express does not lay down suggested project structures or conventions when building an API. There are lots of opinions. This generator follows the suggestion laid out by Corey Cleary.  [https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way](https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way)
+Express does not lay down suggested project structures or conventions when building an API. There are lots of opinions. This generator follows the suggestion laid out by Corey Cleary. [https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way](https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way)
 
-Getting routes, controllers, services and db working across the layers can be prone to error. The *generator* project  generates the necessary skeleton code for routes, controllers, services, db access and tests.
+Getting routes, controllers, services and db working across the layers can be prone to error. The _generator_ project generates the necessary skeleton code for routes, controllers, services, db access and tests.
 
 The code is linear. This is deliberate putting ability to quickly understand the code above elegance.
 
@@ -101,9 +101,9 @@ OVERWRITEROUTE=YES
 # route name may be for example
 #  users              (no parameters)
 #  user/:id           (data passed as part of url e.g.   /user/1)
-#  search?name=       (data passed url query string parameter e.g search?name=wilson) 
+#  search?name=       (data passed url query string parameter e.g search?name=wilson)
 #
-# route names are converted to lower case - N.B. omit leading 'slash' 
+# route names are converted to lower case - N.B. omit leading 'slash'
 ROUTENAME=users
 
 # route method may be GET, POST, PUT or DELETE
@@ -130,22 +130,25 @@ The workflow might be:
 
 1. set `GENERATESKELETON=YES` and generate a working skeleton and first route by running `npm run app.js` from the root of the gen app
 2. Set the database password in `/configs/dbconfig.js`
-3. Test the server and first route (e.g. users in above .env example) using the URL `loacalhost:3005/api/users` The browser should display whatever was set in the `ROUTETESTRESPONSE` or if left empty: 
+3. Test the server and first route (e.g. users in above .env example) using the URL `loacalhost:3005/api/users` The browser should display whatever was set in the `ROUTETESTRESPONSE` or if left empty:
 
 ```json
-[{
-	"id": 1,
-	"email": "someone@redmug.dev",
-	"role": "superuser"
-}, {
-	"id": 2,
-	"email": "support@redmug.dev",
-	"role": "user"
-}]
+[
+  {
+    "id": 1,
+    "email": "someone@redmug.dev",
+    "role": "superuser"
+  },
+  {
+    "id": 2,
+    "email": "support@redmug.dev",
+    "role": "user"
+  }
+]
 ```
 
 1. To add further routes, change `GENERATESKELETON=YES` to `GENERATESKELETON=NO` in `.env`
-2. Keep adding routes setting the following in `.env` 
+2. Keep adding routes setting the following in `.env`
 
 ```bash
 ROUTENAME=
@@ -176,7 +179,7 @@ afterEach(() => {
 
 For each route generated, a test is added. Here is the completed ``api.tests.test.js`
 
- for the routes `/api/users, /api/user/:id and /api/search?name=williams` 
+for the routes `/api/users, /api/user/:id and /api/search?name=williams`
 
 ```jsx
 const request = require('supertest')
@@ -247,7 +250,9 @@ Test Suites: 1 passed, 1 total
 Tests:       3 passed, 4 total
 Snapshots:   0 total
 Time:        0.94 s, estimated 1 s
-Ran all test suites. 
+Ran all test suites.
 ```
 
 As the SQL is added to the `/db` directory route file, the assertion test need changing to match.
+
+working code is better than perfect code, and readable code is better than clever code.

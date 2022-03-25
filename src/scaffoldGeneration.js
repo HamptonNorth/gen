@@ -1,5 +1,5 @@
 const fs = require('node:fs')
-const generateSkeleton = async (gen) => {
+const generateScaffold = async (gen) => {
   // console.log('gen:', gen)
   // check target dir does not contain already server.js
   try {
@@ -298,5 +298,5 @@ module.exports = connection
 }
 
 module.exports = {
-  generateSkeleton,
+  generateScaffold,
 }

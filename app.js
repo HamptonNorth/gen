@@ -6,14 +6,15 @@ const fs = require('node:fs')
 // }
 
 const setup = require('./src/setup')
-const skeletonGeneration = require('./src/skeletonGeneration')
-const getRoutesGeneration = require('./src/getRoutesGeneration')
+const scaffoldGeneration = require('./src/scaffoldGeneration')
+// const getRoutesGeneration = require('./src/getRoutesGeneration')
+const getRoutesGeneration = require('./src/getRoutesGenerationAwait')
 const postRoutesGeneration = require('./src/postRoutesGeneration')
 const { exit } = require('node:process')
 
 // process command line options
 
-const skeleton = process.argv.indexOf('--skeleton') > -1 ? true : false
+const scaffold = process.argv.indexOf('--scaffold') > -1 ? true : false
 const route = process.argv.indexOf('--route') > -1 ? true : false
 const docs = process.argv.indexOf('--docs') > -1 ? true : false
 const help = process.argv.indexOf('--help') > -1 ? true : false
@@ -21,7 +22,7 @@ const version = process.argv.indexOf('--version') > -1 ? true : false
 const purge = process.argv.indexOf('--purge') > -1 ? true : false
 
 // must be one of skeleton, route, docs, help or version
-if (!skeleton && !route && !docs && !help && !version && !purge) {
+if (!scaffold && !route && !docs && !help && !version && !purge) {
   commandLineHelp('no option set or option is invalid')
 }
 
@@ -38,9 +39,9 @@ if (purge) {
   exit(1)
 }
 
-if (skeleton) {
-  console.log('Generating skeleton files for app: /' + gen.targetDir)
-  skeletonGeneration.generateSkeleton(gen)
+if (scaffold) {
+  console.log('Generating scaffold files for app: /' + gen.targetDir)
+  scaffoldGeneration.generateScaffold(gen)
 }
 
 if (docs) {
@@ -148,9 +149,9 @@ function genRoutes(commaListRouteArg) {
     })
   }
 }
-
+// temp changed to get working asynch/await
 async function genGetRoutes(thisRoute, gen) {
-  await getRoutesGeneration.generateGet(thisRoute, gen).then(() => {
+  await getRoutesGenerationAwait.generateGet(thisRoute, gen).then(() => {
     return
   })
 }
@@ -190,14 +191,12 @@ async function getRouteDef(id) {
 
 function commandLineHelp(e) {
   if (e !== '') {
-    console.error('\n\033[91m*** ERROR *** -', e, '\033[0m\n')
+    console.error('\n\x1B[91m*** ERROR *** -', e, '\x1B[0m\n')
   }
   console.log('Provide one from the following command line options : \n')
   console.log('\t  --purge \t\t deletes all generated directories and content')
-  console.log('\t  --skeleton \t\t generate directories and new boilerplate code')
-  console.log(
-    '\t  --route 1  \t\t add route to an existing skeleton. Route defined in configs/routes-config.json id = 1'
-  )
+  console.log('\t  --scaffold \t\t generate directories and new boilerplate code')
+  console.log('\t  --route 1  \t\t add route to a scaffold by id from configs/routes-config.json')
   console.log('\t  --route 1,5-7  \t add multiple routes id = 1,5,6,7')
   console.log('\t  --docs     \t\t generate the API documentation in markdown and HTML')
   console.log('\t  --help     \t\t print this help')
