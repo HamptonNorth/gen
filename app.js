@@ -1,16 +1,16 @@
-const dotenv = require('dotenv').config()
-const fs = require('node:fs')
-
+import dotenv from 'dotenv'
+dotenv.config()
+import * as fs from 'fs/promises'
 // for (let z = 0; z < 6; z++) {
 //   console.log('args ', z, process.argv[z], typeof process.argv[z])
 // }
 
-const setup = require('./src/setup')
-const scaffoldGeneration = require('./src/scaffoldGeneration')
-// const getRoutesGeneration = require('./src/getRoutesGeneration')
-const getRoutesGeneration = require('./src/getRoutesGenerationAwait')
-const postRoutesGeneration = require('./src/postRoutesGeneration')
-const { exit } = require('node:process')
+import { doPurge } from './src/setup.js'
+import { doGenerateScaffold } from './src/scaffoldGeneration.js'
+// // const getRoutesGeneration = require('./src/getRoutesGeneration')
+// const getRoutesGeneration = require('./src/getRoutesGenerationAwait')
+// const postRoutesGeneration = require('./src/postRoutesGeneration')
+// const { exit } = require('node:process')
 
 // process command line options
 
@@ -35,13 +35,13 @@ gen.dirs = ['configs', 'controllers', 'db', 'docs', 'routes', 'services', 'tests
 
 if (purge) {
   console.log('Deleting all existing directories and content: ')
-  setup.purge(gen)
-  exit(1)
+  doPurge(gen)
+  // process.exit(1)
 }
 
 if (scaffold) {
-  console.log('Generating scaffold files for app: /' + gen.targetDir)
-  scaffoldGeneration.generateScaffold(gen)
+  console.log('Generating scaffold dir/files for app: /' + gen.targetDir)
+  doGenerateScaffold(gen)
 }
 
 if (docs) {
