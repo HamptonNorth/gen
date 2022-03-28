@@ -191,13 +191,12 @@ module.exports = connection
     await fs.copyFile('./configs/routes-config-sample.json', routesConfigPath, 0)
     console.log('Generation step 12 - ' + gen.targetRoot + '/configs/routes-config.json' + ' written successfully')
   }
-  setTimeout(function () {
-    console.log(
-      '\nGenerating skeleton files for app: /' +
-        gen.targetDir +
-        ' completed successfully ------------------------------------'
-    )
-  }, 200)
+
+  console.log(
+    '\nGenerating skeleton files for app: /' +
+      gen.targetDir +
+      ' completed successfully ------------------------------------'
+  )
 }
 
 let scaffoldWriteFile = async (step, fullPath, content) => {
