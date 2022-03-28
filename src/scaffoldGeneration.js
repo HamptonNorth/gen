@@ -1,6 +1,12 @@
 import * as fs from 'fs/promises'
+import { existsSync } from 'fs'
 export const doGenerateScaffold = async (gen) => {
   // console.log('gen:', gen)
+
+  if (existsSync(gen.targetRoot + '/app.js')) {
+    console.log('app.js exists. Use --purge first before scaffolding new project')
+    process.exit(1)
+  }
 
   // Create all directories ----------------------------------------------------------
   for (let i = 0; i < gen.dirs.length; i++) {
@@ -28,12 +34,7 @@ app.use('/api', routes)
 
 module.exports =  app
 `
-  try {
-    await fs.writeFile(gen.targetRoot + '/app.js', appJSCode)
-    console.log('Generation step 1 - ' + gen.targetRoot + '/app.js' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/app.js', err)
-  }
+  await scaffoldWriteFile(1, gen.targetRoot + '/app.js', appJSCode)
 
   // Step 2 - generate server.js skeleton code ----------------------------------------------------------
   process.exitCode = 1
@@ -43,13 +44,7 @@ app.listen(${gen.port}, () => {
   console.log('Generated REST API server app listening on port ${gen.port}')
 })
 `
-
-  try {
-    await fs.writeFile(gen.targetRoot + '/server.js', serverJSCode)
-    console.log('Generation step 2 - ' + gen.targetRoot + '/server.js' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/server.js', err)
-  }
+  await scaffoldWriteFile(2, gen.targetRoot + '/server.js', serverJSCode)
 
   // Step 3 - create skeleton code for routes/index.js ----------------------------------------------------------
   let routesIndexJSCode = `const express = require('express')
@@ -58,13 +53,7 @@ const router = express.Router()
 //@insert2
 
 module.exports = router`
-
-  try {
-    await fs.writeFile(gen.targetRoot + '/routes.index.js', appJSCode)
-    console.log('Generation step 3 - ' + gen.targetRoot + '/routes/index.js' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/routes/index.js', err)
-  }
+  scaffoldWriteFile(3, gen.targetRoot + '/routes/index.js', routesIndexJSCode)
 
   // Step 4 - create skeleton code for contollers/index.js ----------------------------------------------------------
   let controllersIndexJSCode = `
@@ -73,13 +62,7 @@ module.exports = router`
 module.exports = {
     //@insert2
   }`
-
-  try {
-    await fs.writeFile(gen.targetRoot + '/controllers/index.js', controllersIndexJSCode)
-    console.log('Generation step 4 - ' + gen.targetRoot + '/controllers/index.js' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/controllers/index.js', err)
-  }
+  await scaffoldWriteFile(4, gen.targetRoot + '/controllers.index.js', controllersIndexJSCode)
 
   // Step 5 - create skeleton code for services/index.js ----------------------------------------------------------
   let servicesIndexJSCode = `
@@ -88,12 +71,7 @@ module.exports = {
 module.exports = {
     //@insert2    
   }`
-  try {
-    await fs.writeFile(gen.targetRoot + '/services/index.js', servicesIndexJSCode)
-    console.log('Generation step 5 - ' + gen.targetRoot + '/services/index.js' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/services/index.js', err)
-  }
+  await scaffoldWriteFile(5, gen.targetRoot + '/services/index.js', servicesIndexJSCode)
 
   // Step 6 - create skeleton code for db/index.js ----------------------------------------------------------
   let dbIndexJSCode = `
@@ -102,12 +80,7 @@ module.exports = {
 module.exports = {
     //@insert2
   }`
-  try {
-    await fs.writeFile(gen.targetRoot + '/db/index.js', dbIndexJSCode)
-    console.log('Generation step 6 - ' + gen.targetRoot + '/db/index.js' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/db/index.js', err)
-  }
+  scaffoldWriteFile(6, gen.targetRoot + '/db/index.js', dbIndexJSCode)
 
   //  Step 7 - db config /configs/dbconfigs.js file ----------------------------------------------------------
   let dbConfigJSCode = ''
@@ -126,12 +99,7 @@ module.exports = {
   } else {
     console.log('ERROR - invalid DB provider! - Check the .env file setting ')
   }
-  try {
-    await fs.writeFile(gen.targetRoot + '/configs/dbconfig.js', dbConfigJSCode)
-    console.log('Generation step 7 - ' + gen.targetRoot + '/configs/dbconfig.js' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/configs/dbconfig.js', err)
-  }
+  await scaffoldWriteFile(7, gen.targetRoot + '/configs/dbconfig.js', dbConfigJSCode)
 
   // Step 8 - create individual db connection /db/db.js ----------------------------------------------------------
   let dbDbJSCode = `
@@ -158,12 +126,7 @@ connection.connect((error) => {
 
 module.exports = connection
 `
-  try {
-    await fs.writeFile(gen.targetRoot + '/db/db.js', dbDbJSCode)
-    console.log('Generation step 8 - ' + gen.targetRoot + '/db/db.js' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/db/db.js', err)
-  }
+  await scaffoldWriteFile(8, gen.targetRoot + '/db/db.js', dbDbJSCode)
 
   // Step 9 - create pooled db connection /db/db-pool.js ----------------------------------------------------------
   let dbPoolDbJSCode = `
@@ -194,12 +157,7 @@ module.exports = connection
  
  module.exports = pool
  `
-  try {
-    await fs.writeFile(gen.targetRoot + '/db/db-pool.js', dbPoolDbJSCode)
-    console.log('Generation step 9 - ' + gen.targetRoot + '/db/db-pool.js' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/db/db-pool.js', err)
-  }
+  await scaffoldWriteFile(9, gen.targetRoot + '/db/db-pool.js', dbPoolDbJSCode)
 
   // Step 10 - create skeleton code for api-tests.test.js ----------------------------------------------------------
   let testScaffoldJSCode = `
@@ -215,26 +173,15 @@ module.exports = connection
   pool.end()
   })
 `
-  try {
-    await fs.writeFile(gen.targetRoot + '/tests/api-tests.test.js', testScaffoldJSCode)
-    console.log('Generation step 10 - ' + gen.targetRoot + '/tests/api-tests.test.js' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/tests/api-tests.test.js', err)
-  }
+  scaffoldWriteFile(10, gen.targetRoot + '/tests/api-tests.test.js', testScaffoldJSCode)
 
   // Step 11 - create skeleton code for docs/api.docs.md ----------------------------------------------------------
-
   let docsMDCode = `# ${process.env.APPDIR} server.js API docs
   //TODO insert general description of server, API & database
   <br><br>
   //@insert1
   `
-  try {
-    await fs.writeFile(gen.targetRoot + '/docs/API.docs.md', docsMDCode)
-    console.log('Generation step 11 - ' + gen.targetRoot + '/docs/API.docs.md' + ' written successfully')
-  } catch (err) {
-    console.log('error writing ' + gen.targetRoot + '/docs/API.docs.md', err)
-  }
+  await scaffoldWriteFile(11, gen.targetRoot + '/docs/API.docs.md', docsMDCode)
 
   // Step 12 - Copy  routes-config-sample.json to routes-config.js (in both /gen and /APPDIR)
   if (process.env.CREATEROUTESCONFIGFROMSAMPLE === 'YES') {
@@ -250,5 +197,14 @@ module.exports = connection
         gen.targetDir +
         ' completed successfully ------------------------------------'
     )
-  }, 500)
+  }, 200)
+}
+
+let scaffoldWriteFile = async (step, fullPath, content) => {
+  try {
+    await fs.writeFile(fullPath, content)
+    console.log(`Generation step ${step} -  ${fullPath} written successfully`)
+  } catch (err) {
+    console.log(`error writing ' + ${fullPath}`, err)
+  }
 }
