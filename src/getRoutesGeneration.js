@@ -1,5 +1,6 @@
-const fs = require('node:fs')
-const generateGet = async (thisRoute, gen) => {
+import * as fs from 'fs/promises'
+import { existsSync } from 'fs'
+export const doGenerateGet = async (thisRoute, gen) => {
   // console.log('In generateGet() ', thisRoute)
   let routeName = thisRoute.name
   let targetRootDir = gen.targetRoot
@@ -332,6 +333,6 @@ function parseObjectKeys(s, parameterType) {
   }
 }
 
-module.exports = {
-  generateGet,
-}
+// module.exports = {
+//   doGenerateGet,
+// }

@@ -7,6 +7,7 @@ import * as fs from 'fs/promises'
 
 import { doPurge } from './src/setup.js'
 import { doGenerateScaffold } from './src/scaffoldGeneration.js'
+import { doGenerateGet } from './src/getRoutesGeneration.js'
 // // const getRoutesGeneration = require('./src/getRoutesGeneration')
 // const getRoutesGeneration = require('./src/getRoutesGenerationAwait')
 // const postRoutesGeneration = require('./src/postRoutesGeneration')
@@ -141,7 +142,7 @@ function genRoutes(commaListRouteArg) {
     getRouteDef(commaListRouteArg[i]).then((thisRoute) => {
       // Generate this route
       if (thisRoute[0].method === 'GET') {
-        genGetRoutes(thisRoute[0], gen)
+        doGenerateGet(thisRoute[0], gen)
       }
       if (thisRoute[0].method === 'POST') {
         postRoutesGeneration.generatePost(thisRoute[0], gen)
