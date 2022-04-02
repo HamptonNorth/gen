@@ -70,15 +70,161 @@
           }
         ]
       }
+    }
+  },
+  {
+    "id": 4,
+    "name": "users2",
+    "method": "GET",
+    "requestbody": "",
+    "requestresponse": {
+      "status": "success",
+      "data": {
+        "users": [
+          {
+            "id": 1,
+            "email": "someone@redmug.dev",
+            "role": "superuser"
+          },
+          {
+            "id": 2,
+            "email": "support@redmug.dev",
+            "role": "user"
+          }
+        ]
+      }
+    },
+    "description": "returns collection of users",
+    "failmessages": "no users exist|To need permission to list users - contact system admin",
+    "notes": "This routes gets all users. For handling ranges of users use GET usersbyrange API call"
+  },
+  {
+    "id": 5,
+    "name": "user2/:id",
+    "method": "GET",
+    "requestbody": "",
+    "requestresponse": {
+      "status": "success",
+      "data": {
+        "users": {
+          "id": 1,
+          "email": "someone@redmug.dev",
+          "role": "superuser"
+        }
+      }
+    },
+    "description": "returns a single user matching id [int]",
+    "failmessages": "no users exists matching id",
+    "notes": ""
+  },
+  {
+    "id": 6,
+    "name": "usersearch2?name=wil&country=UK",
+    "method": "GET",
+    "requestbody": "",
+    "requestresponse": {
+      "status": "success",
+      "data": {
+        "users": [
+          {
+            "id": 12,
+            "email": "swilson@redmug.dev",
+            "role": "user"
+          },
+          {
+            "id": 52,
+            "email": "ajwilson@redmug.dev",
+            "role": "user"
+          },
+          {
+            "id": 67,
+            "email": "shwilson@redmug.dev",
+            "role": "user"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 7,
+    "name": "users3",
+    "method": "GET",
+    "requestbody": "",
+    "requestresponse": {
+      "status": "success",
+      "data": {
+        "users": [
+          {
+            "id": 1,
+            "email": "someone@redmug.dev",
+            "role": "superuser"
+          },
+          {
+            "id": 2,
+            "email": "support@redmug.dev",
+            "role": "user"
+          }
+        ]
+      }
+    },
+    "description": "returns collection of users",
+    "failmessages": "no users exist|To need permission to list users - contact system admin",
+    "notes": "This routes gets all users. For handling ranges of users use GET usersbyrange API call"
+  },
+  {
+    "id": 8,
+    "name": "user3/:id",
+    "method": "GET",
+    "requestbody": "",
+    "requestresponse": {
+      "status": "success",
+      "data": {
+        "users": {
+          "id": 1,
+          "email": "someone@redmug.dev",
+          "role": "superuser"
+        }
+      }
+    },
+    "description": "returns a single user matching id [int]",
+    "failmessages": "no users exists matching id",
+    "notes": ""
+  },
+  {
+    "id": 9,
+    "name": "usersearch3?name=wil&country=UK",
+    "method": "GET",
+    "requestbody": "",
+    "requestresponse": {
+      "status": "success",
+      "data": {
+        "users": [
+          {
+            "id": 12,
+            "email": "swilson@redmug.dev",
+            "role": "user"
+          },
+          {
+            "id": 52,
+            "email": "ajwilson@redmug.dev",
+            "role": "user"
+          },
+          {
+            "id": 67,
+            "email": "shwilson@redmug.dev",
+            "role": "user"
+          }
+        ]
+      }
     },
     "description": "returns collection users matching by name [string] and country [string] ",
     "failmessages": "search returned no matching users",
     "notes": "searches are case insensitive. Name is matched by 'starting with'. Country is matched to ISO 3166 codes"
   },
   {
-    "id": 4,
+    "id": 444,
     "name": "createuser",
-    "method": "POST",
+    "method": "GET",
     "requestbody": [
       {
         "display_name ": "Route Two ",

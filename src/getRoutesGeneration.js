@@ -1,3 +1,4 @@
+// import * as fs from 'fs/promises'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs'
 export const doGenerateGet = async (thisRoute, gen) => {
@@ -47,29 +48,27 @@ export const doGenerateGet = async (thisRoute, gen) => {
   // **********************************************************
   //  Step 1 - insert express route into routes/index.js
   // ***
-  fs.readFile(targetRootDir + '/routes/index.js', 'utf8', function (err, data) {
-    if (err) {
-      return console.log(err)
-    }
-    // check if route already exists
-    if (data.indexOf('/' + thisRoute.name.toLowerCase()) !== -1) {
-      if (process.env.OVERWRITEROUTE !== 'YES') {
-        console.log('ERROR - route exists and OVERWRITEROUTE not set to YES! Check the .env file setting')
-        process.exit(1)
-      }
-    }
-
-    let replace1 = `const {  ${route}  } = require('../controllers') 
+  let routeReplacement1 = `const {  ${route}  } = require('../controllers')
 //@insert1`
-    let replace2 = `router.get('/${thisRoute.name.toLowerCase()}', ${route}.get${routeWithCapital})
+  let routeReplacement2 = `router.get('/${thisRoute.name.toLowerCase()}', ${route}.get${routeWithCapital})
 //@insert2`
-    let result = data.replace(/\/\/@insert1/g, replace1)
-    result = result.replace(/\/\/@insert2/g, replace2)
-    fs.writeFileSync(targetRootDir + '/routes/index.js', result, 'utf8', function (err) {
-      if (err) return console.log(err)
-    })
-  })
 
+  let content = await readFile(targetRootDir + '/routes/index.js')
+  let result1 = await singleReplace1(routeReplacement1, content)
+  let result2 = await singleReplace2(routeReplacement2, result1)
+  await writeFile(1, targetRootDir + '/routes/index.js', result2)
+  // check if route already exists
+  // if (content.indexOf('/' + thisRoute.name.toLowerCase()) !== -1) {
+  //   if (process.env.OVERWRITEROUTE !== 'YES') {
+  //     console.log('ERROR - route exists and OVERWRITEROUTE not set to YES! Check the .env file setting')
+  //     process.exit(1)
+  //   }
+  // }
+
+  // await writeFile(1, targetRootDir + '/routes/index.js', content.replace(/\/\/@insert/g, replace))
+}
+
+function temp() {
   // **********************************************************
   //  Step 2 - insert route into controllers/index.js
   // ***
@@ -263,7 +262,7 @@ export const doGenerateGet = async (thisRoute, gen) => {
   // ***
   let fails = process.env.ROUTEFAILMESSAGES.split('|')
   let failsText = ''
-  for (i = 0; i < fails.length; i++) {
+  for (let i = 0; i < fails.length; i++) {
     failsText += `
     {
       "status": "fail",
@@ -318,6 +317,48 @@ curl  -X POST http://localhost:${process.env.PORT}/api/${thisRoute.name.toLowerC
     })
   })
 }
+let singleReplace1 = async (routeReplacement1, content) => {
+  try {
+    return content.replace(/\/\/@insert1/, routeReplacement1)
+  } catch (err) {
+    console.log('Error in singleReplace1()', err)
+  }
+}
+let singleReplace2 = async (routeReplacement2, res) => {
+  try {
+    return res.replace(/\/\/@insert2/, routeReplacement2)
+  } catch (err) {
+    console.log('Error in singleReplace2()', err)
+  }
+}
+let readFile = async (fullPath) => {
+  try {
+    const data = await fs.readFile(fullPath, 'utf8')
+    return data
+  } catch (err) {
+    console.log(`error reading ' + ${fullPath}`, err)
+  }
+}
+
+let writeFile = async (step, fullPath, content) => {
+  try {
+    await fs.writeFile(fullPath, content)
+    return
+    // console.log(`Generation step ${step} -  ${fullPath} written successfully`)
+  } catch (err) {
+    console.log(`error writing ' + ${fullPath}`, err)
+  }
+}
+
+// async function replaceAsync(str, regex, asyncFn) {
+//   const promises = []
+//   str.replace(regex, (match, ...args) => {
+//     const promise = asyncFn(match, ...args)
+//     promises.push(promise)
+//   })
+//   const data = await Promise.all(promises)
+//   return str.replace(regex, () => data.shift())
+// }
 
 function parseObjectKeys(s, parameterType) {
   if (parameterType === 'url') {

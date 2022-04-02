@@ -62,7 +62,7 @@ module.exports = router`
 module.exports = {
     //@insert2
   }`
-  await scaffoldWriteFile(4, gen.targetRoot + '/controllers.index.js', controllersIndexJSCode)
+  await scaffoldWriteFile(4, gen.targetRoot + '/controllers/index.js', controllersIndexJSCode)
 
   // Step 5 - create skeleton code for services/index.js ----------------------------------------------------------
   let servicesIndexJSCode = `
@@ -185,10 +185,10 @@ module.exports = connection
 
   // Step 12 - Copy  routes-config-sample.json to routes-config.js (in both /gen and /APPDIR)
   if (process.env.CREATEROUTESCONFIGFROMSAMPLE === 'YES') {
-    let routesConfigPath = `../${process.env.APPDIR}/configs/routes-config.json`
-    await fs.copyFile('./configs/routes-config-sample.json', routesConfigPath, 0)
-    routesConfigPath = `../gen/configs/routes-config.json`
-    await fs.copyFile('./configs/routes-config-sample.json', routesConfigPath, 0)
+    let routesConfigPath = `${process.env.APPPATH}${process.env.APPDIR}/configs/routes-config.json`
+    await fs.copyFile(`${process.env.APPPATH}/gen/configs/routes-config-sample.json`, routesConfigPath, 0)
+    routesConfigPath = `${process.env.APPPATH}/gen/configs/routes-config.json`
+    await fs.copyFile(`${process.env.APPPATH}/gen/configs/routes-config-sample.json`, routesConfigPath, 0)
     console.log('Generation step 12 - ' + gen.targetRoot + '/configs/routes-config.json' + ' written successfully')
   }
 

@@ -1,9 +1,8 @@
 import dotenv from 'dotenv'
 dotenv.config()
+
 import * as fs from 'fs/promises'
-// for (let z = 0; z < 6; z++) {
-//   console.log('args ', z, process.argv[z], typeof process.argv[z])
-// }
+import { readFileSync, existsSync } from 'fs'
 
 import { doPurge } from './src/setup.js'
 import { doGenerateScaffold } from './src/scaffoldGeneration.js'
@@ -54,7 +53,7 @@ if (help) {
 }
 
 if (version) {
-  const package_json = require('./package.json')
+  let package_json = JSON.parse(readFileSync('./package.json', 'utf8'))
   console.log('gen version =', package_json.version)
   console.log('node version =', process.versions.node)
   process.exit(1)
@@ -86,7 +85,7 @@ if (route) {
     if (routeArg.toLowerCase() === 'all') {
       // if routeArg contains range(s) expand to comma seprated list
       console.log('all routes set')
-      idsFromFile().then((commaListRouteArg) => {
+      await idsFromFile().then((commaListRouteArg) => {
         // console.log('commaListRouteArg', commaListRouteArg)
         genRoutes(commaListRouteArg)
         if (typeof commaListRouteArg.length == 0) {
@@ -95,8 +94,8 @@ if (route) {
       })
     } else {
       // if routeArg contains range(s) expand to comma seprated list
-      commaListRouteArg = expandRange(routeArg)
-      genRoutes(commaListRouteArg)
+      commaListRouteArg = await expandRange(routeArg)
+      await genRoutes(commaListRouteArg)
       // console.log(
       //   'commaListRouteArg:',
       //   commaListRouteArg,
@@ -112,17 +111,17 @@ if (route) {
 }
 
 async function idsFromFile() {
-  let path = 'C:/Users/rcollins/code/gen-test2/configs/routes-config.json'
-  if (fs.existsSync(path)) {
+  let path = gen.targetRoot + '/configs/routes-config.json'
+  if (existsSync(path)) {
     let allIds = []
-    const r = await JSON.parse(
-      fs.readFileSync(path, {
+    const r = JSON.parse(
+      readFileSync(path, {
         encoding: 'utf8',
         flag: 'r',
       })
     )
     r.forEach(function (thisRoute) {
-      // console.log('this id: ', thisRoute.id)
+      console.log('this id: ', thisRoute.id)
       allIds.push(thisRoute.id)
     })
     return allIds
@@ -131,7 +130,7 @@ async function idsFromFile() {
   }
 }
 
-function genRoutes(commaListRouteArg) {
+async function genRoutes(commaListRouteArg) {
   console.log('Generating routes for configuration(s):', commaListRouteArg.toString())
   // check for duplicates
   let t = Array.from(new Set(commaListRouteArg))
@@ -139,25 +138,19 @@ function genRoutes(commaListRouteArg) {
     commandLineHelp('resulting array of routes contained duplicates')
   }
   for (let i = 0; i < commaListRouteArg.length; i++) {
-    getRouteDef(commaListRouteArg[i]).then((thisRoute) => {
-      // Generate this route
-      if (thisRoute[0].method === 'GET') {
-        doGenerateGet(thisRoute[0], gen)
-      }
-      if (thisRoute[0].method === 'POST') {
-        postRoutesGeneration.generatePost(thisRoute[0], gen)
-      }
-    })
+    let thisRoute = await getRouteDef(commaListRouteArg[i])
+    // Generate this route
+    if (thisRoute[0].method === 'GET') {
+      await doGenerateGet(thisRoute[0], gen)
+    } else if (thisRoute[0].method === 'POST') {
+      postRoutesGeneration.generatePost(thisRoute[0], gen)
+    } else {
+      console.log('Error - invalid method!')
+    }
   }
 }
-// temp changed to get working asynch/await
-async function genGetRoutes(thisRoute, gen) {
-  await getRoutesGenerationAwait.generateGet(thisRoute, gen).then(() => {
-    return
-  })
-}
 
-function expandRange(routeArg) {
+async function expandRange(routeArg) {
   let argArray = routeArg.split(',')
   let res = []
   for (let i = 0; i < argArray.length; i++) {
@@ -180,14 +173,13 @@ function expandRange(routeArg) {
 }
 
 async function getRouteDef(id) {
-  // console.log('path:', process.env.APPPATH + process.env.APPDIR)
   const r = await JSON.parse(
-    fs.readFileSync(process.env.APPPATH + 'async-test/configs/routes-config.json', {
+    await fs.readFile(`${process.env.APPPATH}${process.env.APPDIR}/configs/routes-config.json`, {
       encoding: 'utf8',
       flag: 'r',
     })
   )
-  return await r.filter((element) => element.id == id)
+  return await r.filter((element) => element.id === id)
 }
 
 function commandLineHelp(e) {
