@@ -54,16 +54,16 @@ export const doGenerateGet = async (thisRoute, gen) => {
 //@insert2`
 
   let content = await readFile(targetRootDir + '/routes/index.js')
+  // check if route already exists
+  if (content.indexOf('/' + thisRoute.name.toLowerCase()) !== -1) {
+    if (process.env.OVERWRITEROUTE !== 'YES') {
+      console.log('ERROR - route exists and OVERWRITEROUTE not set to YES! Check the .env file setting')
+      process.exit(1)
+    }
+  }
   let result1 = await singleReplace1(routeReplacement1, content)
   let result2 = await singleReplace2(routeReplacement2, result1)
   await writeFile(1, targetRootDir + '/routes/index.js', result2)
-  // check if route already exists
-  // if (content.indexOf('/' + thisRoute.name.toLowerCase()) !== -1) {
-  //   if (process.env.OVERWRITEROUTE !== 'YES') {
-  //     console.log('ERROR - route exists and OVERWRITEROUTE not set to YES! Check the .env file setting')
-  //     process.exit(1)
-  //   }
-  // }
 
   // await writeFile(1, targetRootDir + '/routes/index.js', content.replace(/\/\/@insert/g, replace))
 }
