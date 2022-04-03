@@ -262,21 +262,21 @@ export const doGenerateGet = async (thisRoute, gen) => {
     }`
   }
   let docsMDCode = `
-  ## /api/adduser
+  ## /api/${thisRoute.name}
 
 >Description:  ${thisRoute.description}
 \`\`\`Text
-# thisRoute.method                      ${thisRoute.method}
+# thisRoute.method            ${thisRoute.method}
 # authentication              Y
 # example                     ${thisRoute.name.toLowerCase()}
 # parameters                  ${message.substring(1)}
 # objectKeys                  ${passedObjectKeys}
 \`\`\`
 \`\`\`Text
-# body                        none
+# body                        \n${JSON.stringify(thisRoute.requestbody, null, '/t')}
 \`\`\`
 \`\`\`Text
-# success response
+# success response            \n${JSON.stringify(thisRoute.requestresponse, null, '\t')}
 
 \`\`\`
 \`\`\`Text
@@ -296,7 +296,7 @@ curl  -X POST http://localhost:${process.env.PORT}/api/${thisRoute.name.toLowerC
   content = await readFile(targetRootDir + '/docs/API.docs.md')
   result1 = await singleReplace1(routeReplacement1, content)
 
-  await writeFile(8, targetRootDir + '/docs/API.docs.md', result1)
+  await writeFile(9, targetRootDir + '/docs/API.docs.md', result1)
 }
 let singleReplace1 = async (routeReplacement1, content) => {
   try {
