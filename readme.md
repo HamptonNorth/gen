@@ -1,15 +1,15 @@
 # Generator
 
-Express does not lay down suggested project structures or conventions when building an API. There are lots of opinions. This generator follows the suggestion laid out by Corey Cleary. [https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way](https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way)
+Express does not lay down suggested project structures or conventions when building an API. There are lots of opinions. This generator follows the suggestions of Corey Cleary. [https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way](https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way)
 
-Getting routes, controllers, services and db working across the layers can be prone to error. The _generator_ project generates the necessary skeleton code for routes, controllers, services, db access and tests.
+Getting routes, controllers, services and db working across the layers can be prone to error. The _generator_ project generates the necessary scaffold code for routes, controllers, services, db access and tests.
 
-The code is linear. This is deliberate putting ability to quickly understand the code above elegance.
+The code is verbose with some repeating code block. This is deliberate putting ability to quickly understand the code above elegance.
 
 Two parts:
 
 - The generator code script that generates the js code in for the target app
-- Target app (the directory where all the target code get written)
+- Target app (the directory where all the target code gets written)
 
 ### Target app
 
@@ -72,92 +72,50 @@ The target directory is now ready for the generator to create the route, control
 The gen app depends on the `.env` set up. Here is an example:
 
 ```bash
+# path to root of target directory
+APPPATH="C:/Users/rcollins/code/"
 # target directory for generation
-APPDIR="gen-test"
+APPDIR="gen-test2"
 
-# Generate a skeleton dirs/files ES or NO/no/anything
-GENERATESKELETON=YES
-
-# Overwrite existing skeleton dirs/files YES or NO/no/anything
-# There is a different overwrite for routes
-OVERWRITESKELETON=YES
+# port to listen on
+PORT=3005
 
 # Database provider, user and database name (add password using editor)
 DATABASEPROVIDER=MYSQL
 DATABASEHOST=localhost
 DATABASEUSER=root
 DATABASENAME=redmugapi
-DATABASEWAITFORCONNECTIONS= true,
+DATABASEWAITFORCONNECTIONS=true,
 DATABASECONNECTIONLIMIT=10,
 DATABASEQUEUELIMIT=0
-
-# generate routes YES or NO/no/anything
-# route details are passed as options
-GENERATEROUTES=YES
 
 # Overwrite the route if exists
 OVERWRITEROUTE=YES
 
-# route name may be for example
-#  users              (no parameters)
-#  user/:id           (data passed as part of url e.g.   /user/1)
-#  search?name=       (data passed url query string parameter e.g search?name=wilson)
-#
-# route names are converted to lower case - N.B. omit leading 'slash'
-ROUTENAME=users
-
-# route method may be GET, POST, PUT or DELETE
-# data for GET is passed as part of URL or as string parameter - request body ignored
-# data for POST, PUT and DELETE always passed as part of request body
-ROUTEMETHOD=GET
-
-# request body - generator will add suitable code pass through listed fields
-# Only used if method POST, PUT or DELETE
-# e.g for a /creatuser url the object keys might be {display-name, email, role, status}
-# dummy code will be created for these request body object keys
-ROUTEREQUESTBODY={}
-
-# the JSON object returned if no working SQL implemented - use for initial testing
-# if empty defaults to:
-# [{"id": 1,"email": "rcollins@redmug.co.uk","role": "superuser"}, {"id": 2,"email": "support@redmug.dev","role": "user"}]
-ROUTETESTRESPONSE=[{"id": 1,"display-name": "Robert Collins","email": "rcollins@redmug.co.uk","last_login": "2022-02-17", "role": "superuser"}]
-
-# port to listen on
-PORT=3005
+# create a routes config by copying the routes-config-sample.json file
+CREATEROUTESCONFIGFROMSAMPLE=YES
 ```
 
 The workflow might be:
 
-1. set `GENERATESKELETON=YES` and generate a working skeleton and first route by running `npm run app.js` from the root of the gen app
-2. Set the database password in `/configs/dbconfig.js`
-3. Test the server and first route (e.g. users in above .env example) using the URL `loacalhost:3005/api/users` The browser should display whatever was set in the `ROUTETESTRESPONSE` or if left empty:
+1. Delete any existing directories or files in the target e.g. `gen-test` by running `node app.js --purge`
+2. Create the required directories and file scaffolds by running `node app.js --scaffold`
+3. Edit the `/configs/routes-config.json` to match the route/routes needed
+4. Generate a single route by running `node app.js --route 1` where 1 is the id. To run multiple routes e.g. `node app.js 1,2,3 6-9` use a mix off comaa listed ids and/or ranges. To run all routes uses `node app.js --route all`
+5. Set the database password in `/configs/dbconfig.js`
+6. Test the server and first route (e.g. users in above .env example) using the URL `loacalhost:3005/api/users` The browser should display whatever was set in the `thisRoute.requestresponse`. For example:
 
 ```json
-[
-  {
-    "id": 1,
-    "email": "someone@redmug.dev",
-    "role": "superuser"
-  },
-  {
-    "id": 2,
-    "email": "support@redmug.dev",
-    "role": "user"
+{
+  "status": "success",
+  "data": {
+    "users": [
+      { "id": 1, "email": "someone@redmug.dev", "role": "superuser" },
+      { "id": 2, "email": "support@redmug.dev", "role": "user" }
+    ]
   }
-]
+}
 ```
-
-1. To add further routes, change `GENERATESKELETON=YES` to `GENERATESKELETON=NO` in `.env`
-2. Keep adding routes setting the following in `.env`
-
-```bash
-ROUTENAME=
-ROUTEMETHOD=
-ROUTEREQUESTBODY=
-ROUTETESTRESPONSE=
-```
-
-1. Repeat adding routes as needed
 
 ## Tests
 
@@ -225,7 +183,9 @@ afterAll(() => {
 })
 ```
 
-When `npm test` run, output is:
+To run the tests uses `npm test` - if you get `"Error: no test specified"` this is probably caused by executing `npm test` from the generator directory rather than the target directory e.g. `gen-test`. The database password should also be set before running `npm test` in `/configs/dbconfigs.js`
+
+A sample `npm test` output:
 
 ```bash
 $ npm test

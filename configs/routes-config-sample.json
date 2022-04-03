@@ -22,7 +22,8 @@
       }
     },
     "description": "returns collection of users",
-    "failmessages": "no users exist|To need permission to list users - contact system admin",
+    "failmessages": "no users exist|You need permission to list users - contact system admin",
+    "testmatches": "users[0].email|users[1].email|users[0].role|users[1].role",
     "notes": "This routes gets all users. For handling ranges of users use GET usersbyrange API call"
   },
   {
@@ -33,15 +34,18 @@
     "requestresponse": {
       "status": "success",
       "data": {
-        "users": {
-          "id": 1,
-          "email": "someone@redmug.dev",
-          "role": "superuser"
-        }
+        "users": [
+          {
+            "id": 1,
+            "email": "someone@redmug.dev",
+            "role": "superuser"
+          }
+        ]
       }
     },
     "description": "returns a single user matching id [int]",
     "failmessages": "no users exists matching id",
+    "testmatches": "users[0].email",
     "notes": ""
   },
   {
@@ -70,7 +74,11 @@
           }
         ]
       }
-    }
+    },
+    "description": "returns collection users matching by name [string] and country [string] ",
+    "failmessages": "search returned no matching users",
+    "testmatches": "users[0].email|users[1].email|users[2].email",
+    "notes": "searches are case insensitive. Name is matched by 'starting with'. Country is matched to ISO 3166 codes"
   },
   {
     "id": 4,
@@ -95,7 +103,8 @@
       }
     },
     "description": "returns collection of users",
-    "failmessages": "no users exist|To need permission to list users - contact system admin",
+    "failmessages": "no users exist|You need permission to list users - contact system admin",
+    "testmatches": "users[0].email|users[1].email|users[0].role|users[1].role",
     "notes": "This routes gets all users. For handling ranges of users use GET usersbyrange API call"
   },
   {
@@ -106,15 +115,18 @@
     "requestresponse": {
       "status": "success",
       "data": {
-        "users": {
-          "id": 1,
-          "email": "someone@redmug.dev",
-          "role": "superuser"
-        }
+        "users": [
+          {
+            "id": 1,
+            "email": "someone@redmug.dev",
+            "role": "superuser"
+          }
+        ]
       }
     },
     "description": "returns a single user matching id [int]",
     "failmessages": "no users exists matching id",
+    "testmatches": "users[0].email",
     "notes": ""
   },
   {
@@ -143,7 +155,11 @@
           }
         ]
       }
-    }
+    },
+    "description": "returns collection users matching by name [string] and country [string] ",
+    "failmessages": "search returned no matching users",
+    "testmatches": "users[0].email|users[1].email|users[2].email",
+    "notes": "searches are case insensitive. Name is matched by 'starting with'. Country is matched to ISO 3166 codes"
   },
   {
     "id": 7,
@@ -168,7 +184,8 @@
       }
     },
     "description": "returns collection of users",
-    "failmessages": "no users exist|To need permission to list users - contact system admin",
+    "failmessages": "no users exist|You need permission to list users - contact system admin",
+    "testmatches": "users[0].email|users[1].email|users[0].role|users[1].role",
     "notes": "This routes gets all users. For handling ranges of users use GET usersbyrange API call"
   },
   {
@@ -179,15 +196,18 @@
     "requestresponse": {
       "status": "success",
       "data": {
-        "users": {
-          "id": 1,
-          "email": "someone@redmug.dev",
-          "role": "superuser"
-        }
+        "users": [
+          {
+            "id": 1,
+            "email": "someone@redmug.dev",
+            "role": "superuser"
+          }
+        ]
       }
     },
     "description": "returns a single user matching id [int]",
     "failmessages": "no users exists matching id",
+    "testmatches": "users[0].email",
     "notes": ""
   },
   {
@@ -219,6 +239,7 @@
     },
     "description": "returns collection users matching by name [string] and country [string] ",
     "failmessages": "search returned no matching users",
+    "testmatches": "users[0].email|users[1].email|users[2].email",
     "notes": "searches are case insensitive. Name is matched by 'starting with'. Country is matched to ISO 3166 codes"
   },
   {
@@ -241,6 +262,7 @@
     },
     "description": "Add a user to users table  ",
     "failmessages": "display_name blank|email blank|invalid client_id|invalid user_status|invalid role",
+    "testmatches": "",
     "notes": "last_login date set to now() if not provided. For bulk user creation use import API"
   }
 ]
