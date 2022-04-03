@@ -117,9 +117,9 @@ The workflow might be:
 }
 ```
 
-## Tests
+## tests
 
-The skeleton generation code creates a `/tests` directory and a file, `api.tests.test.js` is populated with and outline that individual test may then be added to:
+The scaffold generation code creates a `/tests` directory and a file, `api.tests.test.js` is populated with and outline that individual test are then be added to:
 
 ```jsx
 const request = require('supertest')
@@ -135,9 +135,7 @@ afterEach(() => {
 })
 ```
 
-For each route generated, a test is added. Here is the completed ``api.tests.test.js`
-
-for the routes `/api/users, /api/user/:id and /api/search?name=williams`
+For each route generated, a test is added. Here is the completed test snippet generated for `/users`
 
 ```jsx
 const request = require('supertest')
@@ -146,32 +144,15 @@ const pool = require('../db/db-pool')
 
 beforeAll(() => {})
 
-describe('Test the search route', () => {
-  test('Test /api/search emails include ??', async () => {
-    const response = await request(app).get('/api/search')
-    // change these assertions to match API return
-    expect(response.body[0].email).toEqual('someone@redmug.dev')
-    expect(response.body[1].email).toEqual('support@redmug.dev')
-    expect(response.statusCode).toBe(200)
-  })
-})
-
 describe('Test the users route', () => {
   test('Test /api/users emails include ??', async () => {
     const response = await request(app).get('/api/users')
     // change these assertions to match API return
-    expect(response.body[0].email).toEqual('someone@redmug.dev')
-    expect(response.body[1].email).toEqual('support@redmug.dev')
-    expect(response.statusCode).toBe(200)
-  })
-})
+    expect(response.body.data.users[0].email).toEqual('someone@redmug.dev')
+    expect(response.body.data.users[1].email).toEqual('support@redmug.dev')
+    expect(response.body.data.users[0].role).toEqual('superuser')
+    expect(response.body.data.users[1].role).toEqual('user')
 
-describe('Test the user/:id route', () => {
-  test('Test /api/user emails include ??', async () => {
-    const response = await request(app).get('/api/user/:id')
-    // change these assertions to match API return
-    expect(response.body[0].email).toEqual('someone@redmug.dev')
-    expect(response.body[1].email).toEqual('support@redmug.dev')
     expect(response.statusCode).toBe(200)
   })
 })
@@ -183,6 +164,12 @@ afterAll(() => {
 })
 ```
 
+The detailed matches in the middle of this code snippet come from the `routes-config.json`. The `testmatches` entry for the example above is:
+
+```jsx
+"testmatches": "users[0].email|users[1].email|users[0].role|users[1].role",
+```
+
 To run the tests uses `npm test` - if you get `"Error: no test specified"` this is probably caused by executing `npm test` from the generator directory rather than the target directory e.g. `gen-test`. The database password should also be set before running `npm test` in `/configs/dbconfigs.js`
 
 A sample `npm test` output:
@@ -190,8 +177,8 @@ A sample `npm test` output:
 ```bash
 $ npm test
 
-> gen-test@0.1.0 test
-> jest --detectOpenHandles
+> gen-test2@1.0.0 test
+> jest --detectOpenHandles -i tests/api-tests.test.js
 
   console.log
     Successfully connected to the database (connection pool): redmugapi
@@ -199,20 +186,21 @@ $ npm test
       at db/db-pool.js:23:12
 
  PASS  tests/api-tests.test.js
-  Test the search route
-    √ Test /api/search emails include ?? (92 ms)
   Test the users route
-    √ Test /api/users emails include ?? (12 ms)
+    √ Test /api/users emails include ?? (107 ms)
   Test the user/:id route
-    √ Test /api/user emails include ?? (16 ms)
+    √ Test /api/user emails include ?? (14 ms)
+  Test the usersearch?name=wil&country=uk route
+    √ Test /api/usersearch emails include ?? (16 ms)
 
 Test Suites: 1 passed, 1 total
-Tests:       3 passed, 4 total
+Tests:       3 passed, 3 total
 Snapshots:   0 total
-Time:        0.94 s, estimated 1 s
-Ran all test suites.
+Time:        1.084 s, estimated 2 s
+Ran all test suites matching /tests\\api-tests.test.js/i.
 ```
 
 As the SQL is added to the `/db` directory route file, the assertion test need changing to match.
+The code generated from `testmatches` string are always `toEqual` string matches. For other assertions edit the `api-tests.test.js` file manually.
 
-working code is better than perfect code, and readable code is better than clever code.
+    Working code is better than perfect code, and readable code is better than clever code.
