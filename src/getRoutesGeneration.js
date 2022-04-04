@@ -1,6 +1,5 @@
-// import * as fs from 'fs/promises'
-import * as fs from 'fs/promises'
-import { existsSync } from 'fs'
+import { singleReplace1, singleReplace2, readFile, writeFile } from '../utils/index.js'
+
 export const doGenerateGet = async (thisRoute, gen) => {
   // console.log('In generateGet() ', thisRoute)
   let routeName = thisRoute.name
@@ -46,18 +45,7 @@ export const doGenerateGet = async (thisRoute, gen) => {
   }
   let routeWithCapital = route[0].toUpperCase() + route.substring(1)
 
-  console.log(
-    'Route generation - id: ',
-    thisRoute.id,
-    ' method:',
-    thisRoute.method,
-    ', route:',
-    route,
-    ', routewithCapital:',
-    routeWithCapital,
-    ', message:',
-    message
-  )
+  console.log('Route - id: ', thisRoute.id, ' method:', thisRoute.method, ', route:', route, ', message:', message)
 
   // **********************************************************
   //  Step 1 - insert express route into routes/index.js
@@ -78,8 +66,6 @@ export const doGenerateGet = async (thisRoute, gen) => {
   let result1 = await singleReplace1(routeReplacement1, content)
   let result2 = await singleReplace2(routeReplacement2, result1)
   await writeFile(1, targetRootDir + '/routes/index.js', result2)
-
-  // await writeFile(1, targetRootDir + '/routes/index.js', content.replace(/\/\/@insert/g, replace))
 
   // **********************************************************
   //  Step 2 - insert route into controllers/index.js
@@ -203,8 +189,7 @@ export const doGenerateGet = async (thisRoute, gen) => {
   // **********************************************************
   //  Step 8 - tests/api-tests.test.js file
   // ***
-  // assumes testmatches string of format users[0].email (array/offset/field)
-  // build array of match tests for this route from config
+  // assumes testmatches string of format  array/offset/field e.g. users[0].email
 
   let arr = thisRoute.testmatches.substring(0, thisRoute.testmatches.indexOf('['))
   let tests = thisRoute.testmatches.split('|')
@@ -212,23 +197,15 @@ export const doGenerateGet = async (thisRoute, gen) => {
 
   for (let i = 0; i < tests.length; i++) {
     let arrIndex = 0
-    // if (tests.length > 1) {
     arrIndex = parseInt(tests[i].substring(tests[i].indexOf('[') + 1, tests[i].indexOf(']')))
-    // }
     let objKey = tests[i].substring(tests[i].lastIndexOf('.') + 1)
     let obj = thisRoute.requestresponse.data[arr]
     let innerObj = obj[arrIndex]
-    // if (tests.length > 1) {
-    //   innerObj = obj[arrIndex]
-    // }
-    // let innerObj = obj[arrIndex]
     let match = innerObj[objKey]
-
     matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual('${match}')\n`
   }
 
   let testsJSCode = `
-  
   describe('Test the ${thisRoute.name.toLowerCase()} route', () => {
     test('Test /api/${route} emails include ??', async () => {
       const response = await request(app).get('/api/${thisRoute.name.toLowerCase()}')
@@ -236,8 +213,7 @@ export const doGenerateGet = async (thisRoute, gen) => {
       ${matchStr}
       expect(response.statusCode).toBe(200)
     })
-  })
-  
+  })  
   `
   routeReplacement1 = `${testsJSCode} 
 //@insert1`
@@ -298,48 +274,6 @@ curl  -X POST http://localhost:${process.env.PORT}/api/${thisRoute.name.toLowerC
 
   await writeFile(9, targetRootDir + '/docs/API.docs.md', result1)
 }
-let singleReplace1 = async (routeReplacement1, content) => {
-  try {
-    return content.replace(/\/\/@insert1/, routeReplacement1)
-  } catch (err) {
-    console.log('Error in singleReplace1()', err)
-  }
-}
-let singleReplace2 = async (routeReplacement2, res) => {
-  try {
-    return res.replace(/\/\/@insert2/, routeReplacement2)
-  } catch (err) {
-    console.log('Error in singleReplace2()', err)
-  }
-}
-let readFile = async (fullPath) => {
-  try {
-    const data = await fs.readFile(fullPath, 'utf8')
-    return data
-  } catch (err) {
-    console.log(`error reading ' + ${fullPath}`, err)
-  }
-}
-
-let writeFile = async (step, fullPath, content) => {
-  try {
-    await fs.writeFile(fullPath, content)
-    return
-    // console.log(`Generation step ${step} -  ${fullPath} written successfully`)
-  } catch (err) {
-    console.log(`error writing ' + ${fullPath}`, err)
-  }
-}
-
-// async function replaceAsync(str, regex, asyncFn) {
-//   const promises = []
-//   str.replace(regex, (match, ...args) => {
-//     const promise = asyncFn(match, ...args)
-//     promises.push(promise)
-//   })
-//   const data = await Promise.all(promises)
-//   return str.replace(regex, () => data.shift())
-// }
 
 function parseObjectKeys(s, parameterType) {
   if (parameterType === 'url') {
@@ -354,7 +288,3 @@ function parseObjectKeys(s, parameterType) {
     return ''
   }
 }
-
-// module.exports = {
-//   doGenerateGet,
-// }
