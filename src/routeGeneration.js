@@ -1,8 +1,12 @@
 import { singleReplace1, singleReplace2, readFile, writeFile } from '../utils/index.js'
 
-export const doGenerateGet = async (thisRoute, gen) => {
+export const doGenerateRoute = async (thisRoute, gen) => {
   // console.log('In generateGet() ', thisRoute)
   let routeName = thisRoute.name
+  let method = thisRoute.method
+  let methodLowerCase = method.toLowerCase()
+  let methodWithCapital = methodLowerCase[0].toUpperCase() + methodLowerCase.substring(1)
+  console.log('3 methods: ', method, methodLowerCase, methodWithCapital)
   let targetRootDir = gen.targetRoot
   let route = thisRoute.name.toLowerCase()
   let expressRoute = route
@@ -52,7 +56,7 @@ export const doGenerateGet = async (thisRoute, gen) => {
   // ***
   let routeReplacement1 = `const {  ${route}  } = require('../controllers')
 //@insert1`
-  let routeReplacement2 = `router.get('/${expressRoute.toLowerCase()}', ${route}.get${routeWithCapital})
+  let routeReplacement2 = `router.${methodLowerCase}('/${expressRoute.toLowerCase()}', ${route}.${methodLowerCase}${routeWithCapital})
 //@insert2`
 
   let content = await readFile(targetRootDir + '/routes/index.js')
@@ -70,7 +74,7 @@ export const doGenerateGet = async (thisRoute, gen) => {
   // **********************************************************
   //  Step 2 - insert route into controllers/index.js
   // ***
-  routeReplacement1 = `const ${route} = require('./${route}-get.controller') 
+  routeReplacement1 = `const ${route} = require('./${route}-${methodLowerCase}.controller') 
 //@insert1`
   routeReplacement2 = `${route}, 
 //@insert2`
@@ -81,7 +85,7 @@ export const doGenerateGet = async (thisRoute, gen) => {
   await writeFile(2, targetRootDir + '/controllers/index.js', result2)
 
   // **********************************************************
-  //  Step 3 - controllers/route-get.controller.js file
+  //  Step 3 - controllers/route-${methodLowerCase}.controller.js file
   // ***
   let controllerConst = ''
   if (parameterType === 'url') {
@@ -92,14 +96,14 @@ export const doGenerateGet = async (thisRoute, gen) => {
     controllerConst = ` const { ${passedObjectKeys} } = req.body `
   }
   let controllerJSCode = `const { ${route}Service } = require('../services')
-  const { ${route}Get } = ${route}Service  
+  const { ${route}${methodWithCapital} } = ${route}Service  
   //   calls other imported services here  
-  const get${routeWithCapital} = async (req, res, next) => {    
+  const ${methodLowerCase}${routeWithCapital} = async (req, res, next) => {    
     try {
       // req.body ignored for GET
     ${controllerConst}    
     // console.log("req.body:", req.body, "req.params:", req.params, "req.query:", req.query)
-      const r = await ${route}Get(${passedObjectKeys})      
+      const r = await ${route}${methodWithCapital}(${passedObjectKeys})      
       res.send(r)  
       next()
     } catch (e) {
@@ -108,15 +112,15 @@ export const doGenerateGet = async (thisRoute, gen) => {
     }
   }  
   module.exports = {
-    get${routeWithCapital},
+    ${methodLowerCase}${routeWithCapital},
   }`
-  let controllerFileName = targetRootDir + `/controllers/${route}-get.controller.js`
+  let controllerFileName = targetRootDir + `/controllers/${route}-${methodLowerCase}.controller.js`
   await writeFile(3, controllerFileName, controllerJSCode)
 
   // **********************************************************
   //  Step 4 - insert route into services/index.js
   // ***
-  routeReplacement1 = `const ${route}Service = require('./${route}-get.service') 
+  routeReplacement1 = `const ${route}Service = require('./${route}-${methodLowerCase}.service') 
   //@insert1`
   routeReplacement2 = `${route}Service, 
   //@insert2`
@@ -127,11 +131,11 @@ export const doGenerateGet = async (thisRoute, gen) => {
   await writeFile(4, targetRootDir + '/services/index.js', result2)
 
   // **********************************************************
-  //  Step 5 - services/route-get.service.js file
+  //  Step 5 - services/route-${methodLowerCase}.service.js file
   // ***
   let serviceJSCode = `const { ${route}Db } = require('../db')
   // any additional call to datastore here
-  const ${route}Get = async (${passedObjectKeys}) => {
+  const ${route}${methodWithCapital} = async (${passedObjectKeys}) => {
     try {
       return ${route}Db(${passedObjectKeys})
     } catch (e) {
@@ -139,15 +143,15 @@ export const doGenerateGet = async (thisRoute, gen) => {
     }
   }  
   module.exports = {
-    ${route}Get,
+    ${route}${methodWithCapital},
   }`
-  let serviceFileName = targetRootDir + `/services/${route}-get.service.js`
+  let serviceFileName = targetRootDir + `/services/${route}-${methodLowerCase}.service.js`
   await writeFile(5, serviceFileName, serviceJSCode)
 
   // **********************************************************
   //  Step 6 - insert route into db/index.js
   // ***
-  routeReplacement1 = `const { ${route}Db } = require('./${route}-get.db') 
+  routeReplacement1 = `const { ${route}Db } = require('./${route}-${methodLowerCase}.db') 
   //@insert1`
   routeReplacement2 = `${route}Db, 
   //@insert2`
@@ -157,7 +161,7 @@ export const doGenerateGet = async (thisRoute, gen) => {
   await writeFile(6, targetRootDir + '/db/index.js', result2)
 
   // **********************************************************
-  //  Step 7 - db/route-get.db.js file
+  //  Step 7 - db/route-${methodLowerCase}.db.js file
   // ***
   let testResponse =
     '{"status": "success",	"data": {"users": [{"id": 1,"email": "someone@redmug.dev", "role": "superuser"},{"id": 2,"email": "support@redmug.dev", "role": "user"}]}}'
@@ -183,7 +187,7 @@ export const doGenerateGet = async (thisRoute, gen) => {
   module.exports = {
     ${route}Db,
   }`
-  let dbFileName = targetRootDir + `/db/${route}-get.db.js`
+  let dbFileName = targetRootDir + `/db/${route}-${methodLowerCase}.db.js`
   await writeFile(7, dbFileName, dbPoolJSCode)
 
   // **********************************************************
@@ -208,7 +212,7 @@ export const doGenerateGet = async (thisRoute, gen) => {
   let testsJSCode = `
   describe('Test the ${thisRoute.name.toLowerCase()} route', () => {
     test('Test /api/${route} emails include ??', async () => {
-      const response = await request(app).get('/api/${thisRoute.name.toLowerCase()}')
+      const response = await request(app).${methodLowerCase}('/api/${thisRoute.name.toLowerCase()}')
       // change these assertions to match API return
       ${matchStr}
       expect(response.statusCode).toBe(200)

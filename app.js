@@ -6,7 +6,7 @@ import { readFileSync, existsSync } from 'fs'
 
 import { doPurge } from './src/setup.js'
 import { doGenerateScaffold } from './src/scaffoldGeneration.js'
-import { doGenerateGet } from './src/getRoutesGeneration.js'
+import { doGenerateRoute } from './src/routeGeneration.js'
 // // const getRoutesGeneration = require('./src/getRoutesGeneration')
 // const getRoutesGeneration = require('./src/getRoutesGenerationAwait')
 // const postRoutesGeneration = require('./src/postRoutesGeneration')
@@ -141,7 +141,7 @@ async function genRoutes(commaListRouteArg) {
     let thisRoute = await getRouteDef(commaListRouteArg[i])
     // Generate this route
     if (thisRoute[0].method === 'GET') {
-      await doGenerateGet(thisRoute[0], gen)
+      await doGenerateRoute(thisRoute[0], gen)
     } else if (thisRoute[0].method === 'POST') {
       postRoutesGeneration.generatePost(thisRoute[0], gen)
     } else {
