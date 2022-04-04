@@ -1,5 +1,6 @@
 import { singleReplace1, singleReplace2, readFile, writeFile } from '../utils/index.js'
 import { doGenerateDocs } from './docsGeneration.js'
+import { doGenerateTests } from './testsGeneration.js'
 
 export const doGenerateRoute = async (thisRoute, gen) => {
   // console.log('In generateGet() ', thisRoute)
@@ -50,10 +51,9 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   let routeWithCapital = route[0].toUpperCase() + route.substring(1)
 
   console.log('Route - id: ', thisRoute.id, ' method:', thisRoute.method, ', route:', route, ', message:', message)
+  // **************************************************************************************************
 
-  // **********************************************************
-  //  Step 1 - insert express route into routes/index.js
-  // ***
+  // *** Step 1 - insert express route into routes/index.js *******************************************
   let routeReplacement1 = `const {  ${route}  } = require('../controllers')
 //@insert1`
   let routeReplacement2 = `router.${methodLowerCase}('/${expressRoute.toLowerCase()}', ${route}.${methodLowerCase}${routeWithCapital})
@@ -71,9 +71,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   let result2 = await singleReplace2(routeReplacement2, result1)
   await writeFile(1, targetRootDir + '/routes/index.js', result2)
 
-  // **********************************************************
-  //  Step 2 - insert route into controllers/index.js
-  // ***
+  // *** Step 2 - insert route into controllers/index.js***********************************************
   routeReplacement1 = `const ${route} = require('./${route}-${methodLowerCase}.controller') 
 //@insert1`
   routeReplacement2 = `${route}, 
@@ -84,9 +82,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   result2 = await singleReplace2(routeReplacement2, result1)
   await writeFile(2, targetRootDir + '/controllers/index.js', result2)
 
-  // **********************************************************
-  //  Step 3 - controllers/route-${methodLowerCase}.controller.js file
-  // ***
+  // *** Step 3 - controllers/route-${methodLowerCase}.controller.js file *****************************
   let controllerConst = ''
   if (parameterType === 'url') {
     controllerConst = ` const { ${passedObjectKeys} } = req.params `
@@ -117,9 +113,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   let controllerFileName = targetRootDir + `/controllers/${route}-${methodLowerCase}.controller.js`
   await writeFile(3, controllerFileName, controllerJSCode)
 
-  // **********************************************************
-  //  Step 4 - insert route into services/index.js
-  // ***
+  // *** Step 4 - insert route into services/index.js *************************************************
   routeReplacement1 = `const ${route}Service = require('./${route}-${methodLowerCase}.service') 
   //@insert1`
   routeReplacement2 = `${route}Service, 
@@ -130,9 +124,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   result2 = await singleReplace2(routeReplacement2, result1)
   await writeFile(4, targetRootDir + '/services/index.js', result2)
 
-  // **********************************************************
-  //  Step 5 - services/route-${methodLowerCase}.service.js file
-  // ***
+  // *** Step 5 - services/route-${methodLowerCase}.service.js file ***********************************
   let serviceJSCode = `const { ${route}Db } = require('../db')
   // any additional call to datastore here
   const ${route}${methodWithCapital} = async (${passedObjectKeys}) => {
@@ -148,9 +140,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   let serviceFileName = targetRootDir + `/services/${route}-${methodLowerCase}.service.js`
   await writeFile(5, serviceFileName, serviceJSCode)
 
-  // **********************************************************
-  //  Step 6 - insert route into db/index.js
-  // ***
+  // *** Step 6 - insert route into db/index.js *******************************************************
   routeReplacement1 = `const { ${route}Db } = require('./${route}-${methodLowerCase}.db') 
   //@insert1`
   routeReplacement2 = `${route}Db, 
@@ -160,9 +150,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   result2 = await singleReplace2(routeReplacement2, result1)
   await writeFile(6, targetRootDir + '/db/index.js', result2)
 
-  // **********************************************************
-  //  Step 7 - db/route-${methodLowerCase}.db.js file
-  // ***
+  // *** Step 7 - db/route-${methodLowerCase}.db.js file **********************************************
   let testResponse =
     '{"status": "success",	"data": {"users": [{"id": 1,"email": "someone@redmug.dev", "role": "superuser"},{"id": 2,"email": "support@redmug.dev", "role": "user"}]}}'
   if (thisRoute.requestresponse !== '') {
@@ -190,46 +178,10 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   let dbFileName = targetRootDir + `/db/${route}-${methodLowerCase}.db.js`
   await writeFile(7, dbFileName, dbPoolJSCode)
 
-  // **********************************************************
-  //  Step 8 - tests/api-tests.test.js file
-  // ***
-  // assumes testmatches string of format  array/offset/field e.g. users[0].email
+  // *** Step 8 - tests/api-tests.test.js file ********************************************************
+  await doGenerateTests(8, thisRoute, targetRootDir)
 
-  let arr = thisRoute.testmatches.substring(0, thisRoute.testmatches.indexOf('['))
-  let tests = thisRoute.testmatches.split('|')
-  let matchStr = ''
-
-  for (let i = 0; i < tests.length; i++) {
-    let arrIndex = 0
-    arrIndex = parseInt(tests[i].substring(tests[i].indexOf('[') + 1, tests[i].indexOf(']')))
-    let objKey = tests[i].substring(tests[i].lastIndexOf('.') + 1)
-    let obj = thisRoute.requestresponse.data[arr]
-    let innerObj = obj[arrIndex]
-    let match = innerObj[objKey]
-    matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual('${match}')\n`
-  }
-
-  let testsJSCode = `
-  describe('Test the ${thisRoute.name.toLowerCase()} route', () => {
-    test('Test /api/${route} emails include ??', async () => {
-      const response = await request(app).${methodLowerCase}('/api/${thisRoute.name.toLowerCase()}')
-      // change these assertions to match API return
-      ${matchStr}
-      expect(response.statusCode).toBe(200)
-    })
-  })  
-  `
-  routeReplacement1 = `${testsJSCode} 
-//@insert1`
-  content = await readFile(targetRootDir + '/tests/api-tests.test.js')
-  result1 = await singleReplace1(routeReplacement1, content)
-
-  await writeFile(8, targetRootDir + '/tests/api-tests.test.js', result1)
-
-  // **********************************************************
-  //  Step 9 - docss/API.docs.md file
-  // ***
-
+  // *** Step 9 - docss/API.docs.md file **************************************************************
   await doGenerateDocs(9, thisRoute, message, passedObjectKeys, targetRootDir)
 
   function parseObjectKeys(s, parameterType) {
@@ -245,6 +197,4 @@ export const doGenerateRoute = async (thisRoute, gen) => {
       return ''
     }
   }
-  // curl  -X POST http://localhost:3005/api/createuser -H "Content-Type: application/json"   -d '{"display_name ": "Route Two ", "email ": "rollins @redmug.dev ",  "client_id ": 1, "user_status ": 0, "last_login ": "2000-01-01 00:00:00", "role ": "superuser"  }'
-  //
 }
