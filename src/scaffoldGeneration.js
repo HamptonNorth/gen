@@ -1,3 +1,4 @@
+import { writeFile } from '../utils/index.js'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs'
 export const doGenerateScaffold = async (gen) => {
@@ -34,7 +35,7 @@ app.use('/api', routes)
 
 module.exports =  app
 `
-  await scaffoldWriteFile(1, gen.targetRoot + '/app.js', appJSCode)
+  await writeFile(1, gen.targetRoot + '/app.js', appJSCode)
 
   // Step 2 - generate server.js skeleton code ----------------------------------------------------------
   process.exitCode = 1
@@ -44,7 +45,7 @@ app.listen(${gen.port}, () => {
   console.log('Generated REST API server app listening on port ${gen.port}')
 })
 `
-  await scaffoldWriteFile(2, gen.targetRoot + '/server.js', serverJSCode)
+  await writeFile(2, gen.targetRoot + '/server.js', serverJSCode)
 
   // Step 3 - create skeleton code for routes/index.js ----------------------------------------------------------
   let routesIndexJSCode = `const express = require('express')
@@ -53,7 +54,7 @@ const router = express.Router()
 //@insert2
 
 module.exports = router`
-  scaffoldWriteFile(3, gen.targetRoot + '/routes/index.js', routesIndexJSCode)
+  writeFile(3, gen.targetRoot + '/routes/index.js', routesIndexJSCode)
 
   // Step 4 - create skeleton code for contollers/index.js ----------------------------------------------------------
   let controllersIndexJSCode = `
@@ -62,7 +63,7 @@ module.exports = router`
 module.exports = {
     //@insert2
   }`
-  await scaffoldWriteFile(4, gen.targetRoot + '/controllers/index.js', controllersIndexJSCode)
+  await writeFile(4, gen.targetRoot + '/controllers/index.js', controllersIndexJSCode)
 
   // Step 5 - create skeleton code for services/index.js ----------------------------------------------------------
   let servicesIndexJSCode = `
@@ -71,7 +72,7 @@ module.exports = {
 module.exports = {
     //@insert2    
   }`
-  await scaffoldWriteFile(5, gen.targetRoot + '/services/index.js', servicesIndexJSCode)
+  await writeFile(5, gen.targetRoot + '/services/index.js', servicesIndexJSCode)
 
   // Step 6 - create skeleton code for db/index.js ----------------------------------------------------------
   let dbIndexJSCode = `
@@ -80,7 +81,7 @@ module.exports = {
 module.exports = {
     //@insert2
   }`
-  scaffoldWriteFile(6, gen.targetRoot + '/db/index.js', dbIndexJSCode)
+  writeFile(6, gen.targetRoot + '/db/index.js', dbIndexJSCode)
 
   //  Step 7 - db config /configs/dbconfigs.js file ----------------------------------------------------------
   let dbConfigJSCode = ''
@@ -99,7 +100,7 @@ module.exports = {
   } else {
     console.log('ERROR - invalid DB provider! - Check the .env file setting ')
   }
-  await scaffoldWriteFile(7, gen.targetRoot + '/configs/dbconfig.js', dbConfigJSCode)
+  await writeFile(7, gen.targetRoot + '/configs/dbconfig.js', dbConfigJSCode)
 
   // Step 8 - create individual db connection /db/db.js ----------------------------------------------------------
   let dbDbJSCode = `
@@ -126,7 +127,7 @@ connection.connect((error) => {
 
 module.exports = connection
 `
-  await scaffoldWriteFile(8, gen.targetRoot + '/db/db.js', dbDbJSCode)
+  await writeFile(8, gen.targetRoot + '/db/db.js', dbDbJSCode)
 
   // Step 9 - create pooled db connection /db/db-pool.js ----------------------------------------------------------
   let dbPoolDbJSCode = `
@@ -157,7 +158,7 @@ module.exports = connection
  
  module.exports = pool
  `
-  await scaffoldWriteFile(9, gen.targetRoot + '/db/db-pool.js', dbPoolDbJSCode)
+  await writeFile(9, gen.targetRoot + '/db/db-pool.js', dbPoolDbJSCode)
 
   // Step 10 - create skeleton code for api-tests.test.js ----------------------------------------------------------
   let testScaffoldJSCode = `
@@ -173,7 +174,7 @@ module.exports = connection
   pool.end()
   })
 `
-  scaffoldWriteFile(10, gen.targetRoot + '/tests/api-tests.test.js', testScaffoldJSCode)
+  writeFile(10, gen.targetRoot + '/tests/api-tests.test.js', testScaffoldJSCode)
 
   // Step 11 - create skeleton code for docs/api.docs.md ----------------------------------------------------------
   let docsMDCode = `# ${process.env.APPDIR} server.js API docs
@@ -181,7 +182,7 @@ module.exports = connection
   <br><br>
   //@insert1
   `
-  await scaffoldWriteFile(11, gen.targetRoot + '/docs/API.docs.md', docsMDCode)
+  await writeFile(11, gen.targetRoot + '/docs/API.docs.md', docsMDCode)
 
   // Step 12 - Copy  routes-config-sample.json to routes-config.js (in both /gen and /APPDIR)
   if (process.env.CREATEROUTESCONFIGFROMSAMPLE === 'YES') {
@@ -197,13 +198,4 @@ module.exports = connection
       gen.targetDir +
       ' completed successfully ------------------------------------'
   )
-}
-
-let scaffoldWriteFile = async (step, fullPath, content) => {
-  try {
-    await fs.writeFile(fullPath, content)
-    console.log(`Generation step ${step} -  ${fullPath} written successfully`)
-  } catch (err) {
-    console.log(`error writing ' + ${fullPath}`, err)
-  }
 }
