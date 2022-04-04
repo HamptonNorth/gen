@@ -1,4 +1,5 @@
 import { singleReplace1, singleReplace2, readFile, writeFile } from '../utils/index.js'
+import { doGenerateDocs } from './docsGeneration.js'
 
 export const doGenerateRoute = async (thisRoute, gen) => {
   // console.log('In generateGet() ', thisRoute)
@@ -6,7 +7,6 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   let method = thisRoute.method
   let methodLowerCase = method.toLowerCase()
   let methodWithCapital = methodLowerCase[0].toUpperCase() + methodLowerCase.substring(1)
-  console.log('3 methods: ', method, methodLowerCase, methodWithCapital)
   let targetRootDir = gen.targetRoot
   let route = thisRoute.name.toLowerCase()
   let expressRoute = route
@@ -229,73 +229,22 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   // **********************************************************
   //  Step 9 - docss/API.docs.md file
   // ***
-  let curlBody = ''
-  if (method === 'POST') {
-    curlBody = `
-  -H "Content-Type: application/json"
-  -d ${JSON.stringify(thisRoute.requestbody)}`
-  }
-  let fails = thisRoute.failmessages.split('|')
-  let failsText = ''
-  for (let i = 0; i < fails.length; i++) {
-    failsText += `
-    {
-      "status": "fail",
-      "data": {
-        "message": "${fails[i]}"
+
+  await doGenerateDocs(9, thisRoute, message, passedObjectKeys, targetRootDir)
+
+  function parseObjectKeys(s, parameterType) {
+    if (parameterType === 'url') {
+      return s.substring(2).split('/:').join()
+    } else if (parameterType === 'queryString') {
+      let a = s.substring(1).split('&')
+      for (let i = 0; i < a.length; i++) {
+        a[i] = a[i].substring(0, a[i].indexOf('='))
       }
-    }`
-  }
-  let docsMDCode = `
-  ## /api/${thisRoute.name}
-
->Description:  ${thisRoute.description}
-\`\`\`Text
-# thisRoute.method            ${thisRoute.method}
-# authentication              Y
-# example                     ${thisRoute.name.toLowerCase()}
-# parameters                  ${message.substring(1)}
-# objectKeys                  ${passedObjectKeys}
-\`\`\`
-\`\`\`Text
-# body                        \n${JSON.stringify(thisRoute.requestbody, null, '/t')}
-\`\`\`
-\`\`\`Text
-# success response            \n${JSON.stringify(thisRoute.requestresponse, null, '\t')}
-
-\`\`\`
-\`\`\`Text
-# fail response examples(s)
-${failsText}
-\`\`\`
-\`\`\`Text
-# curl
-curl  -X ${method} http://localhost:${process.env.PORT}/api/${thisRoute.name.toLowerCase()} ${curlBody}
-\`\`\`
-> Notes:  ${thisRoute.notes}
-<hr><style="page-break-after: always;"></style>
-  
-  `
-  routeReplacement1 = `${docsMDCode} 
-//@insert1`
-  content = await readFile(targetRootDir + '/docs/API.docs.md')
-  result1 = await singleReplace1(routeReplacement1, content)
-
-  await writeFile(9, targetRootDir + '/docs/API.docs.md', result1)
-}
-
-function parseObjectKeys(s, parameterType) {
-  if (parameterType === 'url') {
-    return s.substring(2).split('/:').join()
-  } else if (parameterType === 'queryString') {
-    let a = s.substring(1).split('&')
-    for (let i = 0; i < a.length; i++) {
-      a[i] = a[i].substring(0, a[i].indexOf('='))
+      return a.join()
+    } else {
+      return ''
     }
-    return a.join()
-  } else {
-    return ''
   }
+  // curl  -X POST http://localhost:3005/api/createuser -H "Content-Type: application/json"   -d '{"display_name ": "Route Two ", "email ": "rollins @redmug.dev ",  "client_id ": 1, "user_status ": 0, "last_login ": "2000-01-01 00:00:00", "role ": "superuser"  }'
+  //
 }
-// curl  -X POST http://localhost:3005/api/createuser -H "Content-Type: application/json"   -d '{"display_name ": "Route Two ", "email ": "rollins @redmug.dev ",  "client_id ": 1, "user_status ": 0, "last_login ": "2000-01-01 00:00:00", "role ": "superuser"  }'
-//
