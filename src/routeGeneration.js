@@ -229,7 +229,12 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   // **********************************************************
   //  Step 9 - docss/API.docs.md file
   // ***
-
+  let curlBody = ''
+  if (method === 'POST') {
+    curlBody = `
+  -H "Content-Type: application/json"
+  -d ${JSON.stringify(thisRoute.requestbody)}`
+  }
   let fails = thisRoute.failmessages.split('|')
   let failsText = ''
   for (let i = 0; i < fails.length; i++) {
@@ -265,7 +270,7 @@ ${failsText}
 \`\`\`
 \`\`\`Text
 # curl
-curl  -X POST http://localhost:${process.env.PORT}/api/${thisRoute.name.toLowerCase()}
+curl  -X ${method} http://localhost:${process.env.PORT}/api/${thisRoute.name.toLowerCase()} ${curlBody}
 \`\`\`
 > Notes:  ${thisRoute.notes}
 <hr><style="page-break-after: always;"></style>
@@ -292,3 +297,5 @@ function parseObjectKeys(s, parameterType) {
     return ''
   }
 }
+// curl  -X POST http://localhost:3005/api/createuser -H "Content-Type: application/json"   -d '{"display_name ": "Route Two ", "email ": "rollins @redmug.dev ",  "client_id ": 1, "user_status ": 0, "last_login ": "2000-01-01 00:00:00", "role ": "superuser"  }'
+//

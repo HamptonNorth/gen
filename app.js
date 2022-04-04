@@ -130,7 +130,7 @@ async function idsFromFile() {
   }
 }
 
-async function genRoutes(commaListRouteArg) {
+async function genRoutes(commaListRouteArg, method) {
   console.log('Generating routes for configuration(s):', commaListRouteArg.toString())
   // check for duplicates
   let t = Array.from(new Set(commaListRouteArg))
@@ -140,12 +140,10 @@ async function genRoutes(commaListRouteArg) {
   for (let i = 0; i < commaListRouteArg.length; i++) {
     let thisRoute = await getRouteDef(commaListRouteArg[i])
     // Generate this route
-    if (thisRoute[0].method === 'GET') {
+    if (thisRoute[0].method === 'GET' || thisRoute[0].method === 'POST') {
       await doGenerateRoute(thisRoute[0], gen)
-    } else if (thisRoute[0].method === 'POST') {
-      postRoutesGeneration.generatePost(thisRoute[0], gen)
     } else {
-      console.log('Error - invalid method!')
+      console.log('Error - invalid method!', thisRoute[0].method)
     }
   }
 }

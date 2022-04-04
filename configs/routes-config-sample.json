@@ -245,7 +245,7 @@
   {
     "id": 444,
     "name": "createuser",
-    "method": "GET",
+    "method": "POST",
     "requestbody": [
       {
         "display_name ": "Route Two ",
@@ -258,11 +258,17 @@
     ],
     "requestresponse": {
       "status": "success",
-      "data": {}
+      "data": {
+        "added": [
+          {
+            "id": 1
+          }
+        ]
+      }
     },
     "description": "Add a user to users table  ",
     "failmessages": "display_name blank|email blank|invalid client_id|invalid user_status|invalid role",
-    "testmatches": "",
+    "testmatches": "added[0].id",
     "notes": "last_login date set to now() if not provided. For bulk user creation use import API"
   }
 ]
