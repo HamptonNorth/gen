@@ -17,13 +17,33 @@
             "id": 2,
             "email": "support@redmug.dev",
             "role": "user"
+          },
+          {
+            "id": 7,
+            "email": "jwilson@redmug.dev",
+            "role": "user"
+          },
+          {
+            "id": 12,
+            "email": "aduffy@redmug.dev",
+            "role": "user"
+          },
+          {
+            "id": 52,
+            "email": "ajwilson@redmug.dev",
+            "role": "user"
+          },
+          {
+            "id": 67,
+            "email": "shwilson@redmug.dev",
+            "role": "user"
           }
         ]
       }
     },
     "description": "returns collection of users",
     "failmessages": "no users exist|You need permission to list users - contact system admin",
-    "testmatches": "users[0].email|users[1].email|users[0].role|users[1].role",
+    "testmatches": "users[0].email|users[1].email|users[2].email|users[0].role|users[1].role|users[2].role",
     "notes": "This routes gets all users. For handling ranges of users use GET usersbyrange API call"
   },
   {
@@ -36,9 +56,9 @@
       "data": {
         "users": [
           {
-            "id": 1,
-            "email": "someone@redmug.dev",
-            "role": "superuser"
+            "id": 7,
+            "email": "jwilson@redmug.dev",
+            "role": "user"
           }
         ]
       }
@@ -50,7 +70,7 @@
   },
   {
     "id": 3,
-    "name": "usersearch?name=wil&country=UK",
+    "name": "usersearch?name=wil",
     "method": "GET",
     "requestbody": "",
     "requestresponse": {
@@ -58,8 +78,8 @@
       "data": {
         "users": [
           {
-            "id": 12,
-            "email": "swilson@redmug.dev",
+            "id": 7,
+            "email": "jwilson@redmug.dev",
             "role": "user"
           },
           {
@@ -81,169 +101,7 @@
     "notes": "searches are case insensitive. Name is matched by 'starting with'. Country is matched to ISO 3166 codes"
   },
   {
-    "id": 4,
-    "name": "users2",
-    "method": "GET",
-    "requestbody": "",
-    "requestresponse": {
-      "status": "success",
-      "data": {
-        "users": [
-          {
-            "id": 1,
-            "email": "someone@redmug.dev",
-            "role": "superuser"
-          },
-          {
-            "id": 2,
-            "email": "support@redmug.dev",
-            "role": "user"
-          }
-        ]
-      }
-    },
-    "description": "returns collection of users",
-    "failmessages": "no users exist|You need permission to list users - contact system admin",
-    "testmatches": "users[0].email|users[1].email|users[0].role|users[1].role",
-    "notes": "This routes gets all users. For handling ranges of users use GET usersbyrange API call"
-  },
-  {
-    "id": 5,
-    "name": "user2/:id",
-    "method": "GET",
-    "requestbody": "",
-    "requestresponse": {
-      "status": "success",
-      "data": {
-        "users": [
-          {
-            "id": 1,
-            "email": "someone@redmug.dev",
-            "role": "superuser"
-          }
-        ]
-      }
-    },
-    "description": "returns a single user matching id [int]",
-    "failmessages": "no users exists matching id",
-    "testmatches": "users[0].email",
-    "notes": ""
-  },
-  {
-    "id": 6,
-    "name": "usersearch2?name=wil&country=UK",
-    "method": "GET",
-    "requestbody": "",
-    "requestresponse": {
-      "status": "success",
-      "data": {
-        "users": [
-          {
-            "id": 12,
-            "email": "swilson@redmug.dev",
-            "role": "user"
-          },
-          {
-            "id": 52,
-            "email": "ajwilson@redmug.dev",
-            "role": "user"
-          },
-          {
-            "id": 67,
-            "email": "shwilson@redmug.dev",
-            "role": "user"
-          }
-        ]
-      }
-    },
-    "description": "returns collection users matching by name [string] and country [string] ",
-    "failmessages": "search returned no matching users",
-    "testmatches": "users[0].email|users[1].email|users[2].email",
-    "notes": "searches are case insensitive. Name is matched by 'starting with'. Country is matched to ISO 3166 codes"
-  },
-  {
-    "id": 7,
-    "name": "users3",
-    "method": "GET",
-    "requestbody": "",
-    "requestresponse": {
-      "status": "success",
-      "data": {
-        "users": [
-          {
-            "id": 1,
-            "email": "someone@redmug.dev",
-            "role": "superuser"
-          },
-          {
-            "id": 2,
-            "email": "support@redmug.dev",
-            "role": "user"
-          }
-        ]
-      }
-    },
-    "description": "returns collection of users",
-    "failmessages": "no users exist|You need permission to list users - contact system admin",
-    "testmatches": "users[0].email|users[1].email|users[0].role|users[1].role",
-    "notes": "This routes gets all users. For handling ranges of users use GET usersbyrange API call"
-  },
-  {
-    "id": 8,
-    "name": "user3/:id",
-    "method": "GET",
-    "requestbody": "",
-    "requestresponse": {
-      "status": "success",
-      "data": {
-        "users": [
-          {
-            "id": 1,
-            "email": "someone@redmug.dev",
-            "role": "superuser"
-          }
-        ]
-      }
-    },
-    "description": "returns a single user matching id [int]",
-    "failmessages": "no users exists matching id",
-    "testmatches": "users[0].email",
-    "notes": ""
-  },
-  {
-    "id": 9,
-    "name": "usersearch3?name=wil&country=UK",
-    "method": "GET",
-    "requestbody": "",
-    "requestresponse": {
-      "status": "success",
-      "data": {
-        "users": [
-          {
-            "id": 12,
-            "email": "swilson@redmug.dev",
-            "role": "user"
-          },
-          {
-            "id": 52,
-            "email": "ajwilson@redmug.dev",
-            "role": "user"
-          },
-          {
-            "id": 67,
-            "email": "shwilson@redmug.dev",
-            "role": "user"
-          }
-        ]
-      }
-    },
-    "description": "returns collection users matching by name [string] and country [string] ",
-    "failmessages": "search returned no matching users",
-    "testmatches": "users[0].email|users[1].email|users[2].email",
-    "notes": "searches are case insensitive. Name is matched by 'starting with'. Country is matched to ISO 3166 codes"
-  },
-  {
-    "id": 444,
+    "id": 100,
     "name": "createuser",
     "method": "POST",
     "requestbody": [
@@ -261,7 +119,7 @@
       "data": {
         "added": [
           {
-            "id": 1
+            "id": true
           }
         ]
       }

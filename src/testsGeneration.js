@@ -12,8 +12,16 @@ export const doGenerateTests = async (step, thisRoute, targetRootDir) => {
     let objKey = tests[i].substring(tests[i].lastIndexOf('.') + 1)
     let obj = thisRoute.requestresponse.data[arr]
     let innerObj = obj[arrIndex]
+
     let match = innerObj[objKey]
-    matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual('${match}')\n`
+    console.log('innerObj: ', innerObj, 'match: ', match, 'typeOf match:', typeof match)
+
+    if (typeof match === 'number' || typeof match === 'boolean') {
+      matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual(${match})\n`
+    } else {
+      // Assumes string and assertion quoted
+      matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual('${match}')\n`
+    }
   }
 
   let testsJSCode = `
