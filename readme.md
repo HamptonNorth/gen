@@ -135,7 +135,7 @@ afterEach(() => {
 })
 ```
 
-For each route generated, a test is added. Here is the completed test snippet generated for `/users`
+For each route generated, tests are added. Here is the completed test snippet generated for `/users`
 
 ```jsx
 const request = require('supertest')
@@ -164,7 +164,10 @@ afterAll(() => {
 })
 ```
 
-The detailed matches in the middle of this code snippet come from the `routes-config.json`. The `testmatches` entry for the example above is:
+The detailed matches in the middle of this code snippet come from the `routes-config.json`.
+The `expect(response.statusCode).toBe(200)` is added for all GET method APIs with `expect(response.statusCode).toBe(201)` being returned for POST method APIs.
+
+The testmatches` entry for the example above is:
 
 ```jsx
 "testmatches": "users[0].email|users[1].email|users[0].role|users[1].role",
