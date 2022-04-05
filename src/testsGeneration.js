@@ -4,6 +4,10 @@ export const doGenerateTests = async (step, thisRoute, targetRootDir) => {
   let route = thisRoute.name.toLowerCase()
   let arr = thisRoute.testmatches.substring(0, thisRoute.testmatches.indexOf('['))
   let tests = thisRoute.testmatches.split('|')
+  let statusCodeMatch = 'expect(response.statusCode).toBe(200)'
+  if (thisRoute.method === 'POST') {
+    statusCodeMatch = 'expect(response.statusCode).toBe(201)'
+  }
   let matchStr = ''
 
   for (let i = 0; i < tests.length; i++) {
@@ -14,7 +18,7 @@ export const doGenerateTests = async (step, thisRoute, targetRootDir) => {
     let innerObj = obj[arrIndex]
 
     let match = innerObj[objKey]
-    console.log('innerObj: ', innerObj, 'match: ', match, 'typeOf match:', typeof match)
+    // console.log('innerObj: ', innerObj, 'match: ', match, 'typeOf match:', typeof match)
 
     if (typeof match === 'number' || typeof match === 'boolean') {
       matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual(${match})\n`
@@ -25,12 +29,12 @@ export const doGenerateTests = async (step, thisRoute, targetRootDir) => {
   }
 
   let testsJSCode = `
-  describe('Test the ${thisRoute.name.toLowerCase()} route', () => {
+  describe('Test ${thisRoute.name.toLowerCase()} route', () => {
     test('Test /api/${route} emails include ??', async () => {
       const response = await request(app).${thisRoute.method.toLowerCase()}('/api/${thisRoute.name.toLowerCase()}')
       // change these assertions to match API return
       ${matchStr}
-      expect(response.statusCode).toBe(200)
+      ${statusCodeMatch}
     })
   })  
   `
