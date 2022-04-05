@@ -201,6 +201,6 @@ Ran all test suites matching /tests\\api-tests.test.js/i.
 ```
 
 As the SQL is added to the `/db` directory route file, the assertion test need changing to match.
-The code generated from `testmatches` string are always `toEqual` string matches. For other assertions edit the `api-tests.test.js` file manually.
+The code generated from `testmatches` supports type of number, string and boolean with `toEqual` assertions. For other types (array, object and null) edit the `api-tests.test.js` file manually.
 
     Working code is better than perfect code, and readable code is better than clever code.
