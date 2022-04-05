@@ -91,6 +91,10 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   } else {
     controllerConst = ` const { ${passedObjectKeys} } = req.body `
   }
+  let returnCode = 'res.status(200)'
+  if (method === 'POST') {
+    returnCode = 'res.status(201)'
+  }
   let controllerJSCode = `const { ${route}Service } = require('../services')
   const { ${route}${methodWithCapital} } = ${route}Service  
   //   calls other imported services here  
@@ -99,7 +103,8 @@ export const doGenerateRoute = async (thisRoute, gen) => {
       // req.body ignored for GET
     ${controllerConst}    
     // console.log("req.body:", req.body, "req.params:", req.params, "req.query:", req.query)
-      const r = await ${route}${methodWithCapital}(${passedObjectKeys})      
+      const r = await ${route}${methodWithCapital}(${passedObjectKeys})  
+      ${returnCode} 
       res.send(r)  
       next()
     } catch (e) {

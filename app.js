@@ -121,7 +121,7 @@ async function idsFromFile() {
       })
     )
     r.forEach(function (thisRoute) {
-      console.log('this id: ', thisRoute.id)
+      // console.log('this id: ', thisRoute.id)
       allIds.push(thisRoute.id)
     })
     return allIds
