@@ -206,4 +206,54 @@ Ran all test suites matching /tests\\api-tests.test.js/i.
 As the SQL is added to the `/db` directory route file, the assertion test need changing to match.
 The code generated from `testmatches` supports type of number, string and boolean with `toEqual` assertions. For other types (array, object and null) edit the `api-tests.test.js` file manually.
 
+## debug
+
+I wasted time on setting up debug configurations. Here are the working debug configs for VS Code:
+
+```JSON
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program with --route option",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "app.js",
+            "cwd": "C:\\Users\\rcollins\\code\\gen",
+            "args": [
+                "--route", "1,100"
+            ]
+        }, {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program with --purge option",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "app.js",
+            "cwd": "C:\\Users\\rcollins\\code\\gen",
+            "args": [
+                "--purge", ""
+            ]
+        },{
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program with --scaffold option",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "app.js",
+            "cwd": "C:\\Users\\rcollins\\code\\gen",
+            "args": [
+                "--scaffold", ""
+            ]
+        }
+    ]
+}
+```
+
     Working code is better than perfect code, and readable code is better than clever code.
