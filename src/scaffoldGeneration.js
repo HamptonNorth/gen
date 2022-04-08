@@ -1,6 +1,7 @@
 import { writeFile } from '../utils/index.js'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs'
+import { doValidateRouteConfigs } from './validateRoutesConfigs.js'
 export const doGenerateScaffold = async (gen) => {
   // console.log('gen:', gen)
 
@@ -192,6 +193,8 @@ module.exports = connection
     await fs.copyFile(`${process.env.APPPATH}/gen/configs/routes-config-sample.json`, routesConfigPath, 0)
     console.log('Generation step 12 - ' + gen.targetRoot + '/configs/routes-config.json' + ' written successfully')
   }
+
+  let valid = doValidateRouteConfigs
 
   console.log(
     '\nGenerating skeleton files for app: /' +

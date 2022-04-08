@@ -26,7 +26,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     message = ' route parameter: ' + routeName.substring(routeName.indexOf('/:'))
     // build object keys to pass from controller layer to service and database layers
     // e.g route of /item/:branch/:bin gives object keys: branch, bin
-    passedObjectKeys = parseObjectKeys(routeName.substring(routeName.indexOf('/:')), parameterType)
+    passedObjectKeys = parseObjectKeys(method, routeName.substring(routeName.indexOf('/:')), parameterType)
   }
 
   // check for URL query string paraneters
@@ -37,7 +37,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     message = ' URL query parameter: ' + routeName.substring(routeName.indexOf('?'))
     // build object keys to pass from controller layer to service and database layers
     // e.g route of /search?name=Jones&postcode=CH1 gives object keys: name, postcode
-    passedObjectKeys = parseObjectKeys(routeName.substring(routeName.indexOf('?')), parameterType)
+    passedObjectKeys = parseObjectKeys(method, routeName.substring(routeName.indexOf('?')), parameterType)
   }
   if (routeName.indexOf('/:') === -1 && routeName.indexOf('?') === -1) {
     message = ' with no route parameter or URL query parameter'
@@ -47,6 +47,27 @@ export const doGenerateRoute = async (thisRoute, gen) => {
       'ERROR - route has both route parameter and URL query parameter - not supported! Check the .env file setting'
     )
     process.exit(1)
+  }
+
+  if (method === 'POST') {
+    parameterType = 'postBody'
+    // passedObjectKeys = parseObjectKeys(method, thisRoute.requestbody[0], parameterType)
+    passedObjectKeys = Object.keys(thisRoute.requestbody[0]).join(', ')
+    message = ' with POST body keys of: ' + passedObjectKeys
+    console
+      .log
+      // 'thisRoute.requestbody[0]',
+      // thisRoute.requestbody[0],
+      // 'typeof: ',
+      // typeof thisRoute.requestbody[0],
+      // 'Object.keys(thisRoute.requestbody[0]): ',
+      // Object.keys(thisRoute.requestbody[0]),
+
+      // "Object.keys(thisRoute.requestbody[0]).join(', '): ",
+      // Object.keys(thisRoute.requestbody[0]).join(', '),
+      // 'passedObjectKeys:',
+      // passedObjectKeys
+      ()
   }
   let routeWithCapital = route[0].toUpperCase() + route.substring(1)
 
@@ -91,6 +112,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   } else {
     controllerConst = ` const { ${passedObjectKeys} } = req.body `
   }
+  // console.log('${passedObjectKeys}: ', controllerConst)
   let returnCode = 'res.status(200)'
   if (method === 'POST') {
     returnCode = 'res.status(201)'
@@ -102,10 +124,10 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     try {
       // req.body ignored for GET
     ${controllerConst}    
-    // console.log("req.body:", req.body, "req.params:", req.params, "req.query:", req.query)
-      const r = await ${route}${methodWithCapital}(${passedObjectKeys})  
-      ${returnCode} 
-      res.send(r)  
+     console.log("In controller - req.body:", req.body, "req.params:", req.params, "req.query:", req.query)
+      await ${route}${methodWithCapital}(${passedObjectKeys})  
+      
+      res.sendStatus(${returnCode})  
       next()
     } catch (e) {
       console.log(e.message)
@@ -134,7 +156,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   // any additional call to datastore here
   const ${route}${methodWithCapital} = async (${passedObjectKeys}) => {
     try {
-      return ${route}Db(${passedObjectKeys})
+      return await ${route}Db(${passedObjectKeys})
     } catch (e) {
       throw new Error(e.message)
     }
@@ -189,7 +211,8 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   // *** Step 9 - docss/API.docs.md file **************************************************************
   await doGenerateDocs(9, thisRoute, message, passedObjectKeys, targetRootDir)
 
-  function parseObjectKeys(s, parameterType) {
+  function parseObjectKeys(method, s, parameterType) {
+    console.log('in parseObjectKeys: ', method)
     if (parameterType === 'url') {
       return s.substring(2).split('/:').join()
     } else if (parameterType === 'queryString') {
@@ -198,6 +221,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
         a[i] = a[i].substring(0, a[i].indexOf('='))
       }
       return a.join()
+    } else if (parameterType === 'postBody') {
     } else {
       return ''
     }

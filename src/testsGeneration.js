@@ -11,21 +11,22 @@ export const doGenerateTests = async (step, thisRoute, targetRootDir) => {
   let matchStr = ''
 
   for (let i = 0; i < tests.length; i++) {
-    let arrIndex = 0
+    let arrIndex = -1
     arrIndex = parseInt(tests[i].substring(tests[i].indexOf('[') + 1, tests[i].indexOf(']')))
+    // console.log('arrIndex:', arrIndex)
     let objKey = tests[i].substring(tests[i].lastIndexOf('.') + 1)
     let obj = thisRoute.requestresponse.data[arr]
-    let innerObj = obj[arrIndex]
+    // let innerObj = obj[arrIndex]
 
-    let match = innerObj[objKey]
-    // console.log('innerObj: ', innerObj, 'match: ', match, 'typeOf match:', typeof match)
+    // let match = innerObj[objKey]
+    // // console.log('innerObj: ', innerObj, 'match: ', match, 'typeOf match:', typeof match)
 
-    if (typeof match === 'number' || typeof match === 'boolean') {
-      matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual(${match})\n`
-    } else {
-      // Assumes string and assertion quoted
-      matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual('${match}')\n`
-    }
+    // if (typeof match === 'number' || typeof match === 'boolean') {
+    //   matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual(${match})\n`
+    // } else {
+    //   // Assumes string and assertion quoted
+    //   matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual('${match}')\n`
+    // }
   }
 
   let testsJSCode = `
