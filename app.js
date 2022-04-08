@@ -62,7 +62,7 @@ if (version) {
 }
 
 if (validate) {
-  console.log('Validation message: \n' + (await doValidateRouteConfigs()))
+  console.log('\n' + (await doValidateRouteConfigs()))
 }
 
 // Checks for --route and if it has a routeID [string] and routeID is valid

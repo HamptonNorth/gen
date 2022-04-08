@@ -6,7 +6,7 @@ export const doValidateRouteConfigs = async () => {
   // contains at least one route
   // no duplicate id's
   // no duplicate route names
-  // if testmatch, check key exists in request.response
+  // if testmatch, check key exists in request.response - TODO
   // if method is GET check request body is empty
   // if method = POST check request.body is valid
   // method = GET | POST | PUT | DELETE
@@ -57,8 +57,6 @@ export const doValidateRouteConfigs = async () => {
     }
     names.push(route)
   }
-  console.log('ids', ids)
-  console.log('names', names)
 
   let noDuplicateIds = [...new Set(ids)]
   let noDuplicateNames = [...new Set(names)]
