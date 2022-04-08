@@ -41,6 +41,15 @@
             "args": [
                 "--scaffold", ""
             ]
+        },{
+            "type": "node",
+            "request": "launch",
+            "name": "Launch generated server",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "server.js",
+            "cwd": "C:\\Users\\rcollins\\code\\gen-test2"
         }
     ]
 }
