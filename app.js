@@ -7,6 +7,7 @@ import { readFileSync, existsSync } from 'fs'
 import { doPurge } from './src/setup.js'
 import { doGenerateScaffold } from './src/scaffoldGeneration.js'
 import { doGenerateRoute } from './src/routeGeneration.js'
+import { doValidateRouteConfigs } from './src/validateRoutesConfigs.js'
 // // const getRoutesGeneration = require('./src/getRoutesGeneration')
 // const getRoutesGeneration = require('./src/getRoutesGenerationAwait')
 // const postRoutesGeneration = require('./src/postRoutesGeneration')
@@ -20,9 +21,10 @@ const docs = process.argv.indexOf('--docs') > -1 ? true : false
 const help = process.argv.indexOf('--help') > -1 ? true : false
 const version = process.argv.indexOf('--version') > -1 ? true : false
 const purge = process.argv.indexOf('--purge') > -1 ? true : false
+const validate = process.argv.indexOf('--validate') > -1 ? true : false
 
 // must be one of skeleton, route, docs, help or version
-if (!scaffold && !route && !docs && !help && !version && !purge) {
+if (!scaffold && !route && !docs && !help && !version && !purge && !validate) {
   commandLineHelp('no option set or option is invalid')
 }
 
@@ -57,6 +59,10 @@ if (version) {
   console.log('gen version =', package_json.version)
   console.log('node version =', process.versions.node)
   process.exit(1)
+}
+
+if (validate) {
+  console.log('Validation message: \n' + (await doValidateRouteConfigs()))
 }
 
 // Checks for --route and if it has a routeID [string] and routeID is valid
@@ -192,6 +198,7 @@ function commandLineHelp(e) {
   console.log('\t  --docs     \t\t generate the API documentation in markdown and HTML')
   console.log('\t  --help     \t\t print this help')
   console.log('\t  --version  \t\t print version')
+  console.log('\t  --validate  \t\t validate the route-configs.json')
   // console.log('\n')
   process.exit(1)
 }

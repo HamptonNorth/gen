@@ -194,7 +194,7 @@ module.exports = connection
     console.log('Generation step 12 - ' + gen.targetRoot + '/configs/routes-config.json' + ' written successfully')
   }
 
-  let valid = doValidateRouteConfigs
+  // let valid = doValidateRouteConfigs()
 
   console.log(
     '\nGenerating skeleton files for app: /' +
