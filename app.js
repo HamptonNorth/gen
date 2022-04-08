@@ -152,6 +152,7 @@ async function genRoutes(commaListRouteArg, method) {
       console.log('Error - invalid method!', thisRoute[0].method)
     }
   }
+  console.log('Route generation done')
 }
 
 async function expandRange(routeArg) {

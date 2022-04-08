@@ -3,7 +3,6 @@ import { doGenerateDocs } from './docsGeneration.js'
 import { doGenerateTests } from './testsGeneration.js'
 
 export const doGenerateRoute = async (thisRoute, gen) => {
-  // console.log('In generateGet() ', thisRoute)
   let routeName = thisRoute.name
   let method = thisRoute.method
   let methodLowerCase = method.toLowerCase()
@@ -54,24 +53,11 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     // passedObjectKeys = parseObjectKeys(method, thisRoute.requestbody[0], parameterType)
     passedObjectKeys = Object.keys(thisRoute.requestbody[0]).join(', ')
     message = ' with POST body keys of: ' + passedObjectKeys
-    console
-      .log
-      // 'thisRoute.requestbody[0]',
-      // thisRoute.requestbody[0],
-      // 'typeof: ',
-      // typeof thisRoute.requestbody[0],
-      // 'Object.keys(thisRoute.requestbody[0]): ',
-      // Object.keys(thisRoute.requestbody[0]),
-
-      // "Object.keys(thisRoute.requestbody[0]).join(', '): ",
-      // Object.keys(thisRoute.requestbody[0]).join(', '),
-      // 'passedObjectKeys:',
-      // passedObjectKeys
-      ()
   }
   let routeWithCapital = route[0].toUpperCase() + route.substring(1)
 
-  console.log('Route - id: ', thisRoute.id, ' method:', thisRoute.method, ', route:', route, ', message:', message)
+  // console.log('Route - id: ', thisRoute.id, ' method:', thisRoute.method, ', route:', route, ', message:', message)
+
   // **************************************************************************************************
 
   // *** Step 1 - insert express route into routes/index.js *******************************************
@@ -112,10 +98,10 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   } else {
     controllerConst = ` const { ${passedObjectKeys} } = req.body `
   }
-  // console.log('${passedObjectKeys}: ', controllerConst)
-  let returnCode = 'res.status(200)'
+
+  let returnCode = '200'
   if (method === 'POST') {
-    returnCode = 'res.status(201)'
+    returnCode = '201'
   }
   let controllerJSCode = `const { ${route}Service } = require('../services')
   const { ${route}${methodWithCapital} } = ${route}Service  
@@ -124,9 +110,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     try {
       // req.body ignored for GET
     ${controllerConst}    
-     console.log("In controller - req.body:", req.body, "req.params:", req.params, "req.query:", req.query)
-      await ${route}${methodWithCapital}(${passedObjectKeys})  
-      
+      await ${route}${methodWithCapital}(${passedObjectKeys})      
       res.sendStatus(${returnCode})  
       next()
     } catch (e) {
@@ -183,12 +167,20 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   if (thisRoute.requestresponse !== '') {
     testResponse = JSON.stringify(thisRoute.requestresponse)
   }
+  let sampleSQL = `// MySQL GET example with passedObjectKey of id
+  // use sql = require db.js and return sql for new connection (use with transaction)
+  // let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'`
+
+  if (thisRoute.method === 'POST') {
+    sampleSQL = `// MySQL INSERT example 
+    // use sql = require db.js and return sql for new connection (use with transaction)
+    // let q = 'INSERT INTO users (display_name, email, client_id, user_status, last_login, role)
+    // VALUES ( display_name, email, client_id, user_status, NOW(), "user")`
+  }
   let dbPoolJSCode = `const pool = require('./db-pool.js')
   // const sql = require('./db.js')
   const ${route}Db = (${passedObjectKeys}) => {
-    // MySQL example with passedObjectKey of id
-    // use sql = require db.js and return sql for new connection (use with transaction)
-    // let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'
+    ${sampleSQL}
     // return sql
     // return pool
     //  .promise()
@@ -212,7 +204,6 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   await doGenerateDocs(9, thisRoute, message, passedObjectKeys, targetRootDir)
 
   function parseObjectKeys(method, s, parameterType) {
-    console.log('in parseObjectKeys: ', method)
     if (parameterType === 'url') {
       return s.substring(2).split('/:').join()
     } else if (parameterType === 'queryString') {
