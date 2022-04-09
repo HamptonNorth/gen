@@ -1,6 +1,6 @@
 # TL:DR
 
-Express routes generator with consistent route, controller, service and data layers. Supports GET, POST, PUT and DELETE methods. Also generates jest tests and API documentation.
+Generator for Node + Express + MySQL routes with consistent route, controller, service and data layers. Supports GET, POST, PUT and DELETE methods. Also generates jest tests and API documentation.
 
 # Generator
 
