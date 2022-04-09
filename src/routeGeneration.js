@@ -54,6 +54,12 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     passedObjectKeys = Object.keys(thisRoute.requestbody[0]).join(', ')
     message = ' with POST body keys of: ' + passedObjectKeys
   }
+  if (method === 'PUT') {
+    parameterType = 'postBody'
+    // passedObjectKeys = parseObjectKeys(method, thisRoute.requestbody[0], parameterType)
+    passedObjectKeys = Object.keys(thisRoute.requestbody[0]).join(', ')
+    message = ' with PUT body keys of: ' + passedObjectKeys
+  }
   let routeWithCapital = route[0].toUpperCase() + route.substring(1)
 
   // console.log('Route - id: ', thisRoute.id, ' method:', thisRoute.method, ', route:', route, ', message:', message)
@@ -100,7 +106,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   }
 
   let returnCode = '200'
-  if (method === 'POST') {
+  if (method === 'POST' || method === 'PUT') {
     returnCode = '201'
   }
   let controllerJSCode = `const { ${route}Service } = require('../services')
@@ -176,6 +182,11 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     // use sql = require db.js and return sql for new connection (use with transaction)
     // let q = 'INSERT INTO users (display_name, email, client_id, user_status, last_login, role)
     // VALUES ( display_name, email, client_id, user_status, NOW(), "user")`
+  }
+  if (thisRoute.method === 'PUT') {
+    sampleSQL = `// MySQL INSERT example 
+    // use sql = require db.js and return sql for new connection (use with transaction)
+    // let q = 'UPDATE users SET role = 'user' WHERE id = 2'`
   }
   let dbPoolJSCode = `const pool = require('./db-pool.js')
   // const sql = require('./db.js')

@@ -174,5 +174,24 @@
     "failmessages": "display_name blank|email blank|invalid client_id|invalid user_status|invalid role",
     "testmatches": "",
     "notes": "last_login date set to now() if not provided. For bulk user creation use import API"
+  },
+  {
+    "id": 200,
+    "name": "updateuserrole",
+    "method": "PUT",
+    "requestbody": [
+      {
+        "client_id": 1,
+        "role": "superuser"
+      }
+    ],
+    "requestresponse": {
+      "status": "success",
+      "data": ""
+    },
+    "description": "Update user role",
+    "failmessages": "invalid client_id|invalid role",
+    "testmatches": "",
+    "notes": "Updates user role where role may be 'user' or 'superuser' only"
   }
 ]

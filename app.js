@@ -146,7 +146,12 @@ async function genRoutes(commaListRouteArg, method) {
   for (let i = 0; i < commaListRouteArg.length; i++) {
     let thisRoute = await getRouteDef(commaListRouteArg[i])
     // Generate this route
-    if (thisRoute[0].method === 'GET' || thisRoute[0].method === 'POST') {
+    if (
+      thisRoute[0].method === 'GET' ||
+      thisRoute[0].method === 'POST' ||
+      thisRoute[0].method === 'PUT' ||
+      thisRoute[0].method === 'DELETE'
+    ) {
       await doGenerateRoute(thisRoute[0], gen)
     } else {
       console.log('Error - invalid method!', thisRoute[0].method)
