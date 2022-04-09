@@ -5,7 +5,7 @@ export const doGenerateTests = async (step, thisRoute, targetRootDir) => {
   let arr = thisRoute.testmatches.substring(0, thisRoute.testmatches.indexOf('['))
   let tests = thisRoute.testmatches.split('|')
   let statusCodeMatch = 'expect(response.statusCode).toBe(200)'
-  if (thisRoute.method === 'POST' || thisRoute.method === 'PUT') {
+  if (thisRoute.method === 'POST' || thisRoute.method === 'PUT' || thisRoute.method === 'DELETE') {
     statusCodeMatch = 'expect(response.statusCode).toBe(201)'
   }
   let matchStr = ''

@@ -193,5 +193,23 @@
     "failmessages": "invalid client_id|invalid role",
     "testmatches": "",
     "notes": "Updates user role where role may be 'user' or 'superuser' only"
+  },
+  {
+    "id": 300,
+    "name": "deleteuser",
+    "method": "DELETE",
+    "requestbody": [
+      {
+        "client_id": 1
+      }
+    ],
+    "requestresponse": {
+      "status": "success",
+      "data": ""
+    },
+    "description": "Delete a user",
+    "failmessages": "invalid user_id",
+    "testmatches": "",
+    "notes": "Deletes user  by id"
   }
 ]

@@ -60,6 +60,12 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     passedObjectKeys = Object.keys(thisRoute.requestbody[0]).join(', ')
     message = ' with PUT body keys of: ' + passedObjectKeys
   }
+  if (method === 'DELETE') {
+    parameterType = 'postBody'
+    // passedObjectKeys = parseObjectKeys(method, thisRoute.requestbody[0], parameterType)
+    passedObjectKeys = Object.keys(thisRoute.requestbody[0]).join(', ')
+    message = ' with DELETE body keys of: ' + passedObjectKeys
+  }
   let routeWithCapital = route[0].toUpperCase() + route.substring(1)
 
   // console.log('Route - id: ', thisRoute.id, ' method:', thisRoute.method, ', route:', route, ', message:', message)
@@ -106,7 +112,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   }
 
   let returnCode = '200'
-  if (method === 'POST' || method === 'PUT') {
+  if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
     returnCode = '201'
   }
   let controllerJSCode = `const { ${route}Service } = require('../services')
@@ -187,6 +193,12 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     sampleSQL = `// MySQL INSERT example 
     // use sql = require db.js and return sql for new connection (use with transaction)
     // let q = 'UPDATE users SET role = 'user' WHERE id = 2'`
+  }
+
+  if (thisRoute.method === 'DELETE') {
+    sampleSQL = `// MySQL INSERT example 
+    // use sql = require db.js and return sql for new connection (use with transaction)
+    // let q = 'DELETE FROM users WHERE id = 2'`
   }
   let dbPoolJSCode = `const pool = require('./db-pool.js')
   // const sql = require('./db.js')

@@ -129,52 +129,7 @@
     "testmatches": "added[0].id",
     "notes": "last_login date set to now() if not provided. For bulk user creation use import API"
   },
-  {
-    "id": 101,
-    "name": "createuser1",
-    "method": "POST",
-    "requestbody": [
-      {
-        "display_name": "Route Two 1",
-        "email": "rcollins1@redmug.dev",
-        "client_id": 1,
-        "user_status": 0,
-        "last_login": "2000-01-01 00:00:00",
-        "role": "user"
-      }
-    ],
-    "requestresponse": {
-      "status": "success",
-      "data": {}
-    },
-    "description": "Add a user to users table  ",
-    "failmessages": "display_name blank|email blank|invalid client_id|invalid user_status|invalid role",
-    "testmatches": "",
-    "notes": "last_login date set to now() if not provided. For bulk user creation use import API"
-  },
-  {
-    "id": 102,
-    "name": "createuser2",
-    "method": "POST",
-    "requestbody": [
-      {
-        "display_name": "Route Two 2",
-        "email": "rcollins2@redmug.dev",
-        "client_id": 1,
-        "user_status": 0,
-        "last_login": "2000-01-01 00:00:00",
-        "role": "superuser"
-      }
-    ],
-    "requestresponse": {
-      "status": "success",
-      "data": ""
-    },
-    "description": "Add a user to users table  ",
-    "failmessages": "display_name blank|email blank|invalid client_id|invalid user_status|invalid role",
-    "testmatches": "",
-    "notes": "last_login date set to now() if not provided. For bulk user creation use import API"
-  },
+
   {
     "id": 200,
     "name": "updateuserrole",
@@ -193,5 +148,23 @@
     "failmessages": "invalid client_id|invalid role",
     "testmatches": "",
     "notes": "Updates user role where role may be 'user' or 'superuser' only"
+  },
+  {
+    "id": 300,
+    "name": "deleteuser",
+    "method": "DELETE",
+    "requestbody": [
+      {
+        "client_id": 1
+      }
+    ],
+    "requestresponse": {
+      "status": "success",
+      "data": ""
+    },
+    "description": "Delete a user",
+    "failmessages": "invalid user_id",
+    "testmatches": "",
+    "notes": "Deletes user  by id"
   }
 ]

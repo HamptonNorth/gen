@@ -2,7 +2,7 @@ import { singleReplace1, singleReplace2, readFile, writeFile } from '../utils/in
 export const doGenerateDocs = async (step, thisRoute, message, passedObjectKeys, targetRootDir) => {
   //   console.log('thisRoute:', thisRoute)
   let curlBody = ``
-  if (thisRoute.method === 'POST' || thisRoute.method === 'PUT') {
+  if (thisRoute.method === 'POST' || thisRoute.method === 'PUT' || thisRoute.method === 'DELETE') {
     curlBody = `-H "Content-Type: application/json" -d '${JSON.stringify(thisRoute.requestbody[0])}'`
   }
   //   let fails = thisRoute.failmessages.split('|')
