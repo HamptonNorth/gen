@@ -1,3 +1,7 @@
+# TL:DR
+
+Express routes generator with consistent route, controller, service and data layers. Supports GET, POST, PUT and DELETE methods. Also generates jest tests and API documentation.
+
 # Generator
 
 Express does not lay down suggested project structures or conventions when building an API. There are lots of opinions. This generator follows the suggestions of Corey Cleary. [https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way](https://www.coreycleary.me/project-structure-for-an-express-rest-api-when-there-is-no-standard-way)
@@ -69,7 +73,7 @@ The target directory is now ready for the generator to create the route, control
 
 ## gen
 
-The gen app depends on the `.env` set up. Here is an example:
+The gen app uses an `.env` set up. Here is an example:
 
 ```bash
 # path to root of target directory
@@ -101,9 +105,10 @@ The workflow might be:
 1. Delete any existing directories or files in the target e.g. `gen-test` by running `node app.js --purge`
 2. Create the required directories and file scaffolds by running `node app.js --scaffold`
 3. Edit the `/configs/routes-config.json` to match the route/routes needed
-4. Generate a single route by running `node app.js --route 1` where 1 is the id. To run multiple routes e.g. `node app.js 1,2,3 6-9` use a mix off comaa listed ids and/or ranges. To run all routes uses `node app.js --route all`
-5. Set the database password in `/configs/dbconfig.js`
-6. Test the server and first route (e.g. users in above .env example) using the URL `loacalhost:3005/api/users` The browser should display whatever was set in the `thisRoute.requestresponse`. For example:
+4. Check the `/configs/routes-config.json` by running `node app.js --validate`
+5. Generate a single route by running `node app.js --route 1` where 1 is the id. To run multiple routes e.g. `node app.js 1,2,3 6-9` use a mix off comaa listed ids and/or ranges. To run all routes uses `node app.js --route all`
+6. Set the database password in `/configs/dbconfig.js`
+7. Test the server and first route (e.g. users in above .env example) using the URL `loacalhost:3005/api/users` The browser should display whatever was set in the `thisRoute.requestresponse`. For example:
 
 ```json
 {
@@ -256,4 +261,26 @@ I wasted time on setting up debug configurations. Here are the working debug con
 }
 ```
 
-    Working code is better than perfect code, and readable code is better than clever code.
+## API documentation
+
+Summary documentation for each route is output to `/docs/API.docs.md`. The documentation includes `curl` commands for manually running the API calls.
+
+## Post route generation editing
+
+As a minimum, once a route is generated, the data access code will be modified to access your database rather than the route returning a mock response.
+
+The API documenation should be modified to match the working code.
+
+The test assertions should be modified to match the working code.
+
+For example, if the route was had `POST` method with data passed in the request body with the route name of `/api/createuser`, the following files would be modified:
+
+```
+/gen-test2/db/createuser-post.db.js
+/gen-test2/docs/API.docs.md
+/gen-test2/api-tests.test.js
+```
+
+<hr>
+
+<small>Working code is better than perfect code, and readable code is better than clever code.</small>
