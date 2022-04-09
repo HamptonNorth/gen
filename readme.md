@@ -286,8 +286,10 @@ For example, if the route was had `POST` method with data passed in the request 
 ### To do
 
 <small>
-1. Add middleware for user authentication as option
-2. Add logging of of API calls as option (use Cabin?)
+
+1.  Add middleware for user authentication as option
+2.  Add logging of of API calls as option (use Cabin?)
+
 </small>
 
 <small>Working code is better than perfect code, and readable code is better than clever code.</small>
