@@ -121,10 +121,17 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   const ${methodLowerCase}${routeWithCapital} = async (req, res, next) => {    
     try {
       // req.body ignored for GET
-    ${controllerConst}    
-      await ${route}${methodWithCapital}(${passedObjectKeys})      
-      res.sendStatus(${returnCode})  
-      next()
+      ${controllerConst}    
+      console.log("In controller - req.body:", req.body, "req.params:", req.params, "req.query:", req.query)
+       const r = await ${route}${methodWithCapital}(${passedObjectKeys})  
+       ${returnCode} 
+       res.send(r)  
+       next()
+
+    // ${controllerConst}    
+    //   await ${route}${methodWithCapital}(${passedObjectKeys})      
+    //   res.sendStatus(${returnCode})  
+    //   next()
     } catch (e) {
       console.log(e.message)
       res.sendStatus(500) && next(e)
