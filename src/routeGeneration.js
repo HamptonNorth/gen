@@ -124,8 +124,8 @@ export const doGenerateRoute = async (thisRoute, gen) => {
       ${controllerConst}    
       console.log("In controller - req.body:", req.body, "req.params:", req.params, "req.query:", req.query)
        const r = await ${route}${methodWithCapital}(${passedObjectKeys})  
-       ${returnCode} 
-       res.send(r)  
+       res.status(${returnCode}).send(r) 
+        
        next()
 
     // ${controllerConst}    

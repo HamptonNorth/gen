@@ -46,6 +46,7 @@ export const doValidateRouteConfigs = async () => {
     if (a[i].method === 'GET' && (a[i].requestbody !== '' || !('requestbody' in a[i]))) {
       message += `${redOn}id: ${a[i].id} -  method set to ${a[i].method} but requestbody not empty or missing "requestbody" key${redOff}\n`
     }
+
     ids.push(a[i].id)
 
     let route = a[i].name
