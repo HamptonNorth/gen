@@ -122,7 +122,6 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     try {
       // req.body ignored for GET
       ${controllerConst}    
-      console.log("In controller - req.body:", req.body, "req.params:", req.params, "req.query:", req.query)
        const r = await ${route}${methodWithCapital}(${passedObjectKeys})  
        res.status(${returnCode}).send(r) 
         
@@ -186,35 +185,27 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   if (thisRoute.requestresponse !== '') {
     testResponse = JSON.stringify(thisRoute.requestresponse)
   }
-  let sampleSQL = `// MySQL GET example with passedObjectKey of id
-  // use sql = require db.js and return sql for new connection (use with transaction)
-  // let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'`
+  let sampleSQL = `// let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'`
 
   if (thisRoute.method === 'POST') {
-    sampleSQL = `// MySQL INSERT example 
-    // use sql = require db.js and return sql for new connection (use with transaction)
-    // let q = 'INSERT INTO users (display_name, email, client_id, user_status, last_login, role)
+    sampleSQL = `// let q = 'INSERT INTO users (display_name, email, client_id, user_status, last_login, role)
     // VALUES ( display_name, email, client_id, user_status, NOW(), "user")`
   }
   if (thisRoute.method === 'PUT') {
-    sampleSQL = `// MySQL INSERT example 
-    // use sql = require db.js and return sql for new connection (use with transaction)
-    // let q = 'UPDATE users SET role = 'user' WHERE id = 2'`
+    sampleSQL = `// let q = 'UPDATE users SET role = 'user' WHERE id = 2'`
   }
 
   if (thisRoute.method === 'DELETE') {
-    sampleSQL = `// MySQL INSERT example 
-    // use sql = require db.js and return sql for new connection (use with transaction)
-    // let q = 'DELETE FROM users WHERE id = 2'`
+    sampleSQL = `// let q = 'DELETE FROM users WHERE id = 2'`
   }
-  let dbPoolJSCode = `const pool = require('./db-pool.js')
+  let dbPoolJSCode = `//const pool = require('./db-pool.js')
   // const sql = require('./db.js')
   const ${route}Db = (${passedObjectKeys}) => {
     ${sampleSQL}
     // return sql
     // return pool
     //  .promise()
-    //  .query(q [id])
+    //  .query(q, [id])
     //  .then(([rows]) => {
     //    return rows
     //  }) 

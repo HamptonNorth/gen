@@ -21,7 +21,7 @@ export const doGenerateTests = async (step, thisRoute, targetRootDir) => {
       let innerObj = obj[arrIndex]
 
       let match = innerObj[objKey]
-      console.log('innerObj: ', innerObj, 'match: ', match, 'typeOf match:', typeof match)
+      // console.log('innerObj: ', innerObj, 'match: ', match, 'typeOf match:', typeof match)
 
       if (typeof match === 'number' || typeof match === 'boolean') {
         matchStr += `expect(response.body.data.${arr}[${arrIndex}].${objKey}).toEqual(${match})\n`

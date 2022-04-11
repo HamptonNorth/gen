@@ -281,6 +281,44 @@ For example, if the route was had `POST` method with data passed in the request 
 /gen-test2/api-tests.test.js
 ```
 
+### Use pool or connections
+
+As a general rule, use a pool connection except fot transactions based SQL. Here is an example of the generated code being changed to working code using a pooled connection.
+
+As generated:
+
+```
+// const pool = require('./db-pool.js') -->
+// const sql = require('./db.js')
+const userDb = (id) => {
+  // let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'
+  // return sql
+  // return pool
+  //  .promise()
+  //  .query(q, [id])
+  //  .then(([rows]) => {
+  //   return rows
+  //  })
+  let test = '{"status":"success","data":{"users":[{"id":7,"email":"jwilson@redmug.dev","role":"user"}]}}'
+  return JSON.parse(test)
+}
+```
+
+Working MySQL code with a pool connection:
+
+```
+const pool = require('./db-pool.js') -->
+const userDb = (id) => {
+  let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'
+  return pool
+    .promise()
+    .query(q, [id])
+    .then(([rows]) => {
+     return rows
+    })
+}
+```
+
 <hr>
 
 ### To do
