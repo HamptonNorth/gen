@@ -287,8 +287,8 @@ As a general rule, use a pool connection except fot transactions based SQL. Here
 
 As generated:
 
-```
-// const pool = require('./db-pool.js') -->
+```javascript
+// const pool = require('./db-pool.js')
 // const sql = require('./db.js')
 const userDb = (id) => {
   // let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'
@@ -306,15 +306,15 @@ const userDb = (id) => {
 
 Working MySQL code with a pool connection:
 
-```
-const pool = require('./db-pool.js') -->
+```javascript
+const pool = require('./db-pool.js')
 const userDb = (id) => {
   let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'
   return pool
     .promise()
     .query(q, [id])
     .then(([rows]) => {
-     return rows
+      return rows
     })
 }
 ```
