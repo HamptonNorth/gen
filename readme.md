@@ -281,6 +281,8 @@ For example, if the route was had `POST` method with data passed in the request 
 /gen-test2/api-tests.test.js
 ```
 
+There is a full working sample at https://github.com/HamptonNorth/gen-test2. This include a SQL script to create and populate a `users` table for testing.
+
 ### Use pool or connections
 
 As a general rule, use a pool connection except fot transactions based SQL. Here is an example of the generated code being changed to working code using a pooled connection.
