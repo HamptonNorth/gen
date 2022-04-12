@@ -10,7 +10,7 @@ export const doGenerateTests = async (step, thisRoute, targetRootDir) => {
   if (thisRoute.method === 'POST' || thisRoute.method === 'PUT' || thisRoute.method === 'DELETE') {
     statusCodeMatch = 'expect(response.statusCode).toBe(201)'
     if (thisRoute.requestbody.length !== 0) {
-      sendBody = `.send(${thisRoute.requestBody[0]})`
+      sendBody = `.send(${JSON.stringify(thisRoute.requestbody[0])})`
     }
   }
   let matchStr = ''
