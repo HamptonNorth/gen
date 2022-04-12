@@ -188,8 +188,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   let sampleSQL = `// let q = 'SELECT users.id, users.email, users.role FROM users WHERE id =  ?'`
 
   if (thisRoute.method === 'POST') {
-    sampleSQL = `// let q = 'INSERT INTO users (display_name, email, client_id, user_status, last_login, role)
-    // VALUES ( display_name, email, client_id, user_status, NOW(), "user")`
+    sampleSQL = `// let q = 'INSERT INTO users (display_name, email, client_id, user_status, last_login, role) VALUES ( ?, ?, ?, ?, NOW(), ?)'`
   }
   if (thisRoute.method === 'PUT') {
     sampleSQL = `// let q = 'UPDATE users SET role = 'user' WHERE id = 2'`
@@ -198,8 +197,17 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   if (thisRoute.method === 'DELETE') {
     sampleSQL = `// let q = 'DELETE FROM users WHERE id = 2'`
   }
-  let dbPoolJSCode = `//const pool = require('./db-pool.js')
-  // const sql = require('./db.js')
+
+  let responseCollectionName = Object.keys(thisRoute.requestresponse.data)
+  let resWrapperStart = `'{"status":"success","data":{'`
+  let resWrapperEnd = `'""}'`
+
+  if (responseCollectionName.length !== 0) {
+    resWrapperStart = `'{"status":"success","data":{"${responseCollectionName[0]}":'`
+    resWrapperEnd = `'}}'`
+  }
+  let dbPoolJSCode = `const pool = require('./db-pool.js')
+  //  const sql = require('./db.js')
   const ${route}Db = (${passedObjectKeys}) => {
     ${sampleSQL}
     // return sql
@@ -207,7 +215,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
     //  .promise()
     //  .query(q, [id])
     //  .then(([rows]) => {
-    //    return rows
+    //    return JSON.parse(${resWrapperStart} +  JSON.stringify(rows) + ${resWrapperEnd})
     //  }) 
     let test = '${testResponse}'
     return JSON.parse(test) 
@@ -215,6 +223,7 @@ export const doGenerateRoute = async (thisRoute, gen) => {
   module.exports = {
     ${route}Db,
   }`
+  // return JSON.parse('{"status":"success","data":{"users":' + JSON.stringify(rows) + '}}')
   let dbFileName = targetRootDir + `/db/${route}-${methodLowerCase}.db.js`
   await writeFile(7, dbFileName, dbPoolJSCode)
 

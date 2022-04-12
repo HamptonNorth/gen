@@ -5,9 +5,13 @@ export const doGenerateTests = async (step, thisRoute, targetRootDir) => {
   let arr = thisRoute.testmatches.substring(0, thisRoute.testmatches.indexOf('['))
   let tests = thisRoute.testmatches.split('|')
   // console.log('tests', tests)
+  let sendBody = ''
   let statusCodeMatch = 'expect(response.statusCode).toBe(200)'
   if (thisRoute.method === 'POST' || thisRoute.method === 'PUT' || thisRoute.method === 'DELETE') {
     statusCodeMatch = 'expect(response.statusCode).toBe(201)'
+    if (thisRoute.requestbody.length !== 0) {
+      sendBody = `.send(${thisRoute.requestBody[0]})`
+    }
   }
   let matchStr = ''
 
@@ -34,8 +38,8 @@ export const doGenerateTests = async (step, thisRoute, targetRootDir) => {
 
   let testsJSCode = `
   describe('Test ${thisRoute.name.toLowerCase()} route', () => {
-    test('Test /api/${route} emails include ??', async () => {
-      const response = await request(app).${thisRoute.method.toLowerCase()}('/api/${thisRoute.name.toLowerCase()}')
+    test('Test /api/${route}', async () => {
+      const response = await request(app).${thisRoute.method.toLowerCase()}('/api/${thisRoute.name.toLowerCase()}')${sendBody}
       // change these assertions to match API return
       ${matchStr}
       ${statusCodeMatch}
