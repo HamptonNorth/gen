@@ -28,9 +28,15 @@ export const doGenerateScaffold = async (gen) => {
   let appJSCode = `const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
+const cors = require('cors')
 const routes = require('./routes')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use(
+  cors({
+    origin: ['${process.env.ORIGIN}'],
+  })
+)
 app.get('/', (req, res) => res.status(200).send('Generated REST API app is working'))
 app.use('/api', routes)
 
