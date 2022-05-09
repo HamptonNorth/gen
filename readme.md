@@ -80,6 +80,8 @@ The gen app uses an `.env` set up. Here is an example:
 APPPATH="C:/Users/rcollins/code/"
 # target directory for generation
 APPDIR="gen-test2"
+# origin - the web client that will access this server - Used in CORS setup
+ORIGIN="https://redmug.dev"
 
 # port to listen on
 PORT=3005
@@ -106,7 +108,7 @@ The workflow might be:
 2. Create the required directories and file scaffolds by running `node app.js --scaffold`
 3. Edit the `/configs/routes-config.json` to match the route/routes needed
 4. Check the `/configs/routes-config.json` by running `node app.js --validate`
-5. Generate a single route by running `node app.js --route 1` where 1 is the id. To run multiple routes e.g. `node app.js 1,2,3 6-9` use a mix off comaa listed ids and/or ranges. To run all routes uses `node app.js --route all`
+5. Generate a single route by running `node app.js --route 1` where 1 is the id. To run multiple routes e.g. `node app.js 1,2,3 6-9` use a mix off comma listed ids and/or ranges. To run all routes uses `node app.js --route all`
 6. Set the database password in `/configs/dbconfig.js`
 7. Test the server and first route (e.g. users in above .env example) using the URL `loacalhost:3005/api/users` The browser should display whatever was set in the `thisRoute.requestresponse`. For example:
 
