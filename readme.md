@@ -323,6 +323,10 @@ const userDb = (id) => {
 }
 ```
 
+### Layout of JSON responses
+
+JSON server response follow the JSEND guidelines https://github.com/omniti-labs/jsend
+
 <hr>
 
 ### To do
